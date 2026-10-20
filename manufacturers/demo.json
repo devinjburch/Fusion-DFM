@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "manufacturer": {
+    "id": "demo",
+    "name": "DEMO Manufacturer (fictional)",
+    "website": ""
+  },
+  "profile_status": "demo",
+  "description": "DEMONSTRATION ONLY. Values are invented to exercise the tool and do not describe any real manufacturer.",
+  "processes": [
+    {
+      "id": "sheet_metal_bending",
+      "name": "DEMO sheet metal",
+      "notes": [
+        "Fictional limits."
+      ],
+      "materials": [
+        {
+          "id": "demo_steel",
+          "name": "Demo Steel",
+          "aliases": [
+            "steel"
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "id": "demo.thickness",
+          "type": "thickness_range",
+          "enabled": true,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {
+            "min_mm": 0.8,
+            "max_mm": 3.0
+          },
+          "source": {
+            "url": "",
+            "date_verified": "",
+            "note": "DEMO"
+          }
+        },
+        {
+          "id": "demo.bend_radius",
+          "type": "min_bend_radius",
+          "enabled": true,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {
+            "min_ratio_to_thickness": 1.0
+          },
+          "source": {
+            "note": "DEMO"
+          }
+        },
+        {
+          "id": "demo.flange",
+          "type": "min_flange_length",
+          "enabled": true,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {
+            "min_ratio_to_thickness": 4.0
+          },
+          "source": {
+            "note": "DEMO"
+          }
+        },
+        {
+          "id": "demo.hole_edge",
+          "type": "min_hole_edge_distance",
+          "enabled": true,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {
+            "min_ratio_to_thickness": 2.0
+          },
+          "source": {
+            "note": "DEMO"
+          }
+        },
+        {
+          "id": "demo.hole_bend",
+          "type": "min_hole_bend_distance",
+          "enabled": true,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {
+            "min_ratio_to_thickness": 3.0
+          },
+          "source": {
+            "note": "DEMO"
+          }
+        },
+        {
+          "id": "demo.hole_dia",
+          "type": "min_hole_diameter",
+          "enabled": true,
+          "verified": false,
+          "severity": "WARNING",
+          "parameters": {
+            "min_ratio_to_thickness": 1.0
+          },
+          "source": {
+            "note": "DEMO"
+          }
+        },
+        {
+          "id": "demo.max_dims",
+          "type": "max_part_dimensions",
+          "enabled": true,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {
+            "max_long_mm": 1000,
+            "max_short_mm": 500
+          },
+          "source": {
+            "note": "DEMO"
+          }
+        }
+      ]
+    }
+  ]
+}

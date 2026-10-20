@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "manufacturer": {
+    "id": "pcbway",
+    "name": "PCBWay",
+    "website": "https://www.pcbway.com"
+  },
+  "profile_status": "unverified",
+  "description": "Official documentation could not be retrieved in the build environment (outbound access to this site was blocked on 2026-10-20). No requirements entered; all rules disabled. Add values only with a source URL and verification date.",
+  "processes": [
+    {
+      "id": "sheet_metal_fabrication",
+      "name": "Sheet metal fabrication",
+      "materials": [],
+      "notes": [],
+      "rules": [
+        {
+          "id": "pcbway.bend_radius",
+          "type": "min_bend_radius",
+          "enabled": false,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {},
+          "limitations": "Unverified: manufacturer documentation not retrieved."
+        },
+        {
+          "id": "pcbway.flange",
+          "type": "min_flange_length",
+          "enabled": false,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {},
+          "limitations": "Unverified: manufacturer documentation not retrieved."
+        },
+        {
+          "id": "pcbway.hole_edge",
+          "type": "min_hole_edge_distance",
+          "enabled": false,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {},
+          "limitations": "Unverified: manufacturer documentation not retrieved."
+        },
+        {
+          "id": "pcbway.hole_bend",
+          "type": "min_hole_bend_distance",
+          "enabled": false,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {},
+          "limitations": "Unverified: manufacturer documentation not retrieved."
+        },
+        {
+          "id": "pcbway.hole_dia",
+          "type": "min_hole_diameter",
+          "enabled": false,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {},
+          "limitations": "Unverified: manufacturer documentation not retrieved."
+        },
+        {
+          "id": "pcbway.max_dims",
+          "type": "max_part_dimensions",
+          "enabled": false,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {},
+          "limitations": "Unverified: manufacturer documentation not retrieved."
+        }
+      ]
+    }
+  ]
+}
