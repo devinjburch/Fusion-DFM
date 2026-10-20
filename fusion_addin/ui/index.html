@@ -73,5 +73,6 @@ window.fusionJavaScriptHandler={handle(action,data){const d=JSON.parse(data);
  else if(action==='results'){$('run').disabled=false;render(d)}
  else if(action==='error'){$('run').disabled=false;$('out').innerHTML=`<div class="err">${esc(d.message)}</div>`}
  return 'OK'}};
-window.addEventListener('load',()=>setTimeout(()=>send('ready'),100));
+(function ready(n){if(typeof adsk!=='undefined'&&adsk.fusionSendData){send('ready')}else if(n<50){setTimeout(()=>ready(n+1),100)}
+ else{$('out').innerHTML='<div class="err">Fusion bridge (adsk.fusionSendData) not available in this page.</div>'}})(0);
 </script></body></html>

@@ -28,20 +28,35 @@ def test_engine_does_not_import_cad():
     subprocess.run([sys.executable, "-c", code], cwd=ROOT, check=True)
 
 
-def test_install_bundle_layout(tmp_path):
+def test_install_layout(tmp_path):
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import install
-    dest = install.build(str(tmp_path))
-    for f in ("FusionDFM.py", "FusionDFM.manifest", "fusion_addin/app_main.py", "fusion_addin/ui/index.html",
-              "dfm_engine/engine.py", "manufacturers/sendcutsend.json"):
-        assert os.path.exists(os.path.join(dest, f)), f
-    json.load(open(os.path.join(dest, "FusionDFM.manifest")))
-    # bundle's engine finds the bundled manufacturers
+    api = tmp_path / "Autodesk Fusion" / "API"
+    addin, smoke = install.install(str(api))
+    assert addin == str(api / "AddIns" / "FusionDFM") and smoke == str(api / "Scripts" / "FusionDFMSmoke")
+    for f in ("FusionDFM.py", "FusionDFM.manifest", "fusion_addin/app_main.py", "fusion_addin/smoke.py",
+              "fusion_addin/ui/index.html", "dfm_engine/engine.py", "manufacturers/sendcutsend.json"):
+        assert os.path.exists(os.path.join(addin, f)), f
+    assert not os.path.exists(os.path.join(addin, "fusion_addin", "FusionDFM.py"))  # moved to root
+    for d, n in ((addin, "FusionDFM"), (smoke, "FusionDFMSmoke")):
+        m = json.load(open(os.path.join(d, n + ".manifest")))
+        assert os.path.exists(os.path.join(d, n + ".py")) and m["type"] in ("addin", "script")
     code = "from dfm_engine import list_profiles; p,e=list_profiles(); assert len(p)==4 and not e"
-    subprocess.run([sys.executable, "-c", code], cwd=dest, check=True)
+    subprocess.run([sys.executable, "-c", code], cwd=addin, check=True)
+    install.install(str(api))  # re-install over an existing copy works
+
+
+def test_missing_api_dir_gives_clear_error(monkeypatch):
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import install
+    monkeypatch.setattr(install, "candidate_api_dirs", lambda: ["/nonexistent/a", "/nonexistent/b"])
+    import pytest
+    with pytest.raises(SystemExit, match="Could not find the Fusion API folder"):
+        install.pick_api_dir()
 
 
 def test_fusion_modules_compile():
     import py_compile
-    for f in ("app_main", "extraction", "highlight", "FusionDFM"):
+    for f in ("app_main", "extraction", "highlight", "smoke", "FusionDFM"):
         py_compile.compile(os.path.join(ROOT, "fusion_addin", f + ".py"), doraise=True)
+    py_compile.compile(os.path.join(ROOT, "smoke_test", "FusionDFMSmoke.py"), doraise=True)

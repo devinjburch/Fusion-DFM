@@ -1,0 +1,11 @@
+{
+  "autodeskProduct": "Fusion",
+  "type": "script",
+  "id": "5d3e8a0c-7b64-4f19-8c0e-2a9f4b6d1e22",
+  "author": "Fusion-DFM contributors",
+  "description": {"": "Smoke test for the Fusion-DFM add-in."},
+  "version": "0.1.0",
+  "runOnStartup": false,
+  "supportedOS": "windows|mac",
+  "editEnabled": true
+}

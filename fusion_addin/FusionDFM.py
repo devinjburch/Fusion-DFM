@@ -30,6 +30,9 @@ def stop(context):
     except Exception:
         _report("Fusion-DFM failed to stop cleanly")
     _started = False
+    # Fusion keeps one Python interpreter alive: drop our modules so a re-Run loads fresh code.
+    for name in [m for m in sys.modules if m.split(".")[0] in ("fusion_addin", "dfm_engine")]:
+        del sys.modules[name]
 
 
 def _report(title):
