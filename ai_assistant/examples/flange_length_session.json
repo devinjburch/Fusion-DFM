@@ -1,0 +1,119 @@
+{
+ "state": "REANALYZED",
+ "problem": {
+  "rule_id": "scs.min_flange_length",
+  "manufacturer_id": "sendcutsend",
+  "status": "FAIL",
+  "severity": "ERROR",
+  "explanation": "Flange #1 is 7.62 mm (0.300 in); SendCutSend requires at least 11.84 mm (0.466 in) for Mild Steel 3.02 mm.",
+  "feature": {
+   "kind": "flange",
+   "ref_token": "flange-1",
+   "label": "Flange 1",
+   "cad_parameter": null,
+   "owner_feature": null
+  },
+  "measured_mm": 7.619999999999999,
+  "required_mm": 11.8364,
+  "source_url": "https://sendcutsend.com/bending-calculator/",
+  "strength": "requirement",
+  "problem_id": "prob-13676ebf"
+ },
+ "constraints": [],
+ "candidates": [
+  {
+   "problem_id": "prob-13676ebf",
+   "title": "increase flange_length (from apex) from 7.62 mm (0.300 in) to 11.84 mm (0.466 in) (+4.22 mm (0.166 in))",
+   "rationale": "Increase the flange length measured from the bend apex to at least 11.84 mm (0.466 in).",
+   "changes": [
+    {
+     "target": {
+      "kind": "flange",
+      "ref_token": "flange-1",
+      "label": "Flange 1",
+      "cad_parameter": null,
+      "owner_feature": null
+     },
+     "parameter": "flange_length",
+     "from_value_mm": 7.619999999999999,
+     "to_value_mm": 11.8364,
+     "units": "mm",
+     "delta_mm": 4.2164
+    }
+   ],
+   "confidence": "minimum",
+   "side_effects": [
+    "changes flat-pattern length",
+    "may interact with adjacent flanges/features"
+   ],
+   "validations": [
+    {
+     "kind": "reanalyze",
+     "description": "Re-run the manufacturability analysis after the change",
+     "params": {}
+    },
+    {
+     "kind": "problem_resolved",
+     "description": "Rule scs.min_flange_length must pass for this feature",
+     "params": {}
+    },
+    {
+     "kind": "no_new_failures",
+     "description": "The change must not introduce new FAIL results",
+     "params": {}
+    },
+    {
+     "kind": "constraints_hold",
+     "description": "All design constraints must still hold",
+     "params": {}
+    }
+   ],
+   "violated_constraints": [],
+   "correction_id": "fix-4ada8cc0",
+   "status": "applied",
+   "applicable": true
+  }
+ ],
+ "selected": "fix-4ada8cc0",
+ "approval": {
+  "correction_id": "fix-4ada8cc0",
+  "approved_by": "devin",
+  "approved_at": "<timestamp>",
+  "shown_summary": "Proposed change: increase flange_length (from apex) from 7.62 mm (0.300 in) to 11.84 mm (0.466 in) (+4.22 mm (0.166 in))\nWhy: Increase the flange length measured from the bend apex to at least 11.84 mm (0.466 in).\nSide effects: changes flat-pattern length; may interact with adjacent flanges/features\nThis will modify your CAD model. You can undo it afterwards."
+ },
+ "reanalysis": {
+  "problem_resolved": true,
+  "new_failures": [],
+  "overall_before": "FAIL",
+  "overall_after": "PASS",
+  "recommend": "accept"
+ },
+ "rollback": {
+  "operations": [
+   {
+    "correction_id": "fix-4ada8cc0",
+    "inverse_changes": [
+     {
+      "target": {
+       "kind": "flange",
+       "ref_token": "flange-1",
+       "label": "Flange 1",
+       "cad_parameter": null,
+       "owner_feature": null
+      },
+      "parameter": "flange_length",
+      "from_value_mm": 11.8364,
+      "to_value_mm": 7.619999999999999,
+      "units": "mm",
+      "delta_mm": -4.2164
+     }
+    ],
+    "strategy": "parameter_restore",
+    "snapshot_ref": "mem-0",
+    "created_at": "<timestamp>",
+    "executed": false,
+    "op_id": "undo-bf4196ab"
+   }
+  ]
+ }
+}
