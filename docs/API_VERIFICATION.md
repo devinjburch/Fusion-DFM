@@ -72,3 +72,11 @@ for this part). SendCutSend / Mild Steel analysis: PASS, 9 checks passed (thickn
 
 Click-to-highlight confirmed live: clicking a failing result selects the corresponding face in the model
 (`Design.findEntityByToken` + `Selections.add`).
+
+
+# Phase 2 additions (documentation-verified 2026-10-21; not yet run in Fusion)
+New members used, all checked on help.autodesk.com/cloudhelp/ENU/Fusion-360-API: `BRepFace.loops`, `BRepLoop.isOuter/edges/coEdges`, `BRepCoEdge.edge`,
+`Occurrence.fullPathName/isVisible/bRepBodies`, `BRepBody.nativeObject/assemblyContext`, `Component.name`, `Arc3D.radius`.
+ASSUMPTIONS to confirm on a real part (see TESTING.md Phase 2): (a) inner loops of a planar sheet face are the cutouts and `isOuter` is reliable;
+(b) the face on the far side of a cutout edge is a wall whose edges span exactly the sheet thickness along the sheet normal; (c) `BRepBody.nativeObject`
+is identical for all instances of a component, so instance de-duplication works; (d) visible bodies inside occurrences report `isVisible` correctly.

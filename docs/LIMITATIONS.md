@@ -20,3 +20,19 @@ manifest field set, `file:///` palette URL, and the geometry-classification assu
 | Overall size | folded axis-aligned bbox (informational) | |
 Bodies: a selected sheet metal body, else the largest visible sheet metal body (warned); non-sheet-metal bodies are rejected.
 Highlighting is via Fusion selection (not custom graphics).
+
+
+# Phase 2 limitations
+- **Manufacturer data**: only SendCutSend is substantially populated; PCBWay and Xometry could not be retrieved and produce NEEDS_REVIEW only. Hole-to-edge and feature
+  spacing are unpublished/unverified for SendCutSend, so its best verdict is "conditionally compatible". See [MANUFACTURERS.md](MANUFACTURERS.md).
+- **Cutouts**: slots (2 parallel lines + 2 half-circles), rectangles (incl. rounded corners) are measured; every other outline is "irregular" with an unknown narrowest width
+  (size rules -> NEEDS_REVIEW). Non-through loops (pockets/embosses) are ignored by design, which could hide a cosmetic through-cut that is intentional — logged per face.
+  A through-cut test uses adjoining wall height ≈ thickness; walls that cannot be measured give "through-cut not confirmed" (NEEDS_REVIEW).
+- **Edge distance** is to the sheet's *outer* boundary only (other holes/cutouts are not counted); hole-to-hole and cutout-to-cutout spacing are not checked.
+- **Assemblies**: visible sheet metal bodies in visible occurrences; instances of one component are analysed once (`instance_count`). Parts hidden, in unloaded/referenced-but-unreadable
+  components, or flagged non-sheet-metal are skipped (a warning counts skipped bodies). Rigid-transform assumption: distances are taken in assembly space.
+- **Bend/flange**: flange apex length assumes a flat flange face and a single bend; multi-bend (intermediate) flanges are excluded. Hole-to-bend uses only bends adjacent to the hole's face.
+- **Flat size** is the flat pattern's axis-aligned bounding box.
+- **Reports** are saved to `~/FusionDFM/reports/` (no file dialog); HTML opens in the default browser.
+- **Unit display**: lengths are shown in mm and inches together regardless of the Fusion document units.
+- Not implemented (by design): any CAD modification, AI/LLM calls, non-sheet-metal processes (CNC, 3D printing), SOLIDWORKS.
