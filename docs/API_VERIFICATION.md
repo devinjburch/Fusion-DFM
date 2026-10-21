@@ -4,7 +4,14 @@ Method: each member below was looked up on the official reference
 (`https://help.autodesk.com/cloudhelp/ENU/Fusion-360-API/files/<namespace>_<Class>_<member>.htm`, page footer "© 2026 Autodesk")
 on 2026-10-20. **VERIFIED-DOC** = member exists with the semantics used. **ASSUMPTION** = documented member, but our
 *interpretation* of the geometry/behaviour is untested in real Fusion. **UNDOCUMENTED** = could not be confirmed.
-Nothing here has been executed inside Fusion yet; `tests/fake_adsk.py` only exercises our own logic.
+`tests/fake_adsk.py` only exercises our own logic.
+
+## Live verification (2026-10-20, Windows, Fusion 2705.1.30, one sheet metal part: 0.10 in steel, 3 bends, 7 holes)
+Smoke test 10/10 OK; user confirmed counts, Extracted-geometry values and click-to-highlight match the model.
+Confirmed in real Fusion: panel id `SolidScriptsAddinsPanel`; manifest accepted; `file:///` palette URL and `adsk.fusionSendData` bridge;
+`activeSheetMetalRule.thickness.value` (matches geometry-derived); hole/bend/flange classification on this part (assumptions 1-4, 7);
+selection highlighting. Install folder on this machine: `Autodesk Fusion 360\API`. Still untested: flat pattern size (assumption 6),
+multi-body/occurrence parts, other materials and thicknesses.
 
 ## Defects found and fixed (all in the first Phase 1 draft)
 | Draft code | Problem | Fix |
