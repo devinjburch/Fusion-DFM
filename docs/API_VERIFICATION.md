@@ -69,3 +69,6 @@ Extraction now catches this, logs it, and falls back to geometry-derived thickne
 Smoke test 10/10 OK with a flat pattern present: `Component.flatPattern.flatBody.boundingBox` gave flat size 192.51 x 50.8 mm (assumption 6 holds
 for this part). SendCutSend / Mild Steel analysis: PASS, 9 checks passed (thickness range, max flat size, 7 hole diameters), 4 rules not checked
 (bend radius, flange length, hole-edge, hole-bend: no verified manufacturer data). Visual count (7 holes, 3 bends) matches the model.
+
+Click-to-highlight confirmed live: clicking a failing result selects the corresponding face in the model
+(`Design.findEntityByToken` + `Selections.add`).
