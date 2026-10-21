@@ -1,0 +1,127 @@
+{
+ "schema_version": 2,
+ "manufacturer": {
+  "id": "full",
+  "name": "Synthetic Full-Coverage Fixture",
+  "website": "https://example.test"
+ },
+ "profile_status": "verified",
+ "description": "TEST FIXTURE ONLY - not a real manufacturer.",
+ "processes": [
+  {
+   "id": "sheet_metal_bending",
+   "name": "fixture",
+   "materials": [
+    {
+     "id": "steel",
+     "name": "Mild Steel",
+     "aliases": [
+      "steel"
+     ]
+    }
+   ],
+   "rules": [
+    {
+     "id": "f.t",
+     "type": "thickness_range",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "min_mm": 0.5,
+      "max_mm": 6
+     },
+     "source": {
+      "url": "https://example.test/spec",
+      "date_verified": "2026-01-01"
+     }
+    },
+    {
+     "id": "f.br",
+     "type": "min_bend_radius",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "min_ratio_to_thickness": 0.5
+     },
+     "source": {
+      "url": "https://example.test/spec",
+      "date_verified": "2026-01-01"
+     }
+    },
+    {
+     "id": "f.fl",
+     "type": "min_flange_length",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "min_ratio_to_thickness": 3
+     },
+     "source": {
+      "url": "https://example.test/spec",
+      "date_verified": "2026-01-01"
+     }
+    },
+    {
+     "id": "f.hd",
+     "type": "min_hole_diameter",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "min_ratio_to_thickness": 1
+     },
+     "source": {
+      "url": "https://example.test/spec",
+      "date_verified": "2026-01-01"
+     }
+    },
+    {
+     "id": "f.he",
+     "type": "min_hole_edge_distance",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "min_ratio_to_thickness": 2
+     },
+     "source": {
+      "url": "https://example.test/spec",
+      "date_verified": "2026-01-01"
+     }
+    },
+    {
+     "id": "f.hb",
+     "type": "min_hole_bend_distance",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "min_ratio_to_thickness": 3
+     },
+     "source": {
+      "url": "https://example.test/spec",
+      "date_verified": "2026-01-01"
+     }
+    },
+    {
+     "id": "f.mx",
+     "type": "max_part_dimensions",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "max_long_mm": 1000,
+      "max_short_mm": 500
+     },
+     "source": {
+      "url": "https://example.test/spec",
+      "date_verified": "2026-01-01"
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,74 +1,91 @@
 {
-  "schema_version": 1,
-  "manufacturer": {
-    "id": "xometry",
-    "name": "Xometry",
-    "website": "https://www.xometry.com"
-  },
-  "profile_status": "unverified",
-  "description": "Official documentation could not be retrieved in the build environment (outbound access to this site was blocked on 2026-10-20). No requirements entered; all rules disabled. Add values only with a source URL and verification date.",
-  "processes": [
+ "schema_version": 2,
+ "manufacturer": {
+  "id": "xometry",
+  "name": "Xometry",
+  "website": "https://www.xometry.com"
+ },
+ "profile_status": "unverified",
+ "description": "No Xometry requirements are entered. Official documentation could not be retrieved from the build environment, so every rule is disabled and no PASS/FAIL can be produced from this profile.",
+ "research": {
+  "status": "blocked",
+  "attempted": "2026-10-20",
+  "notes": "Requests to https://www.xometry.com failed (proxy 403 via curl; DNS resolution failure via the web-fetch tool). Not retried. To complete this profile: supply the official sheet-metal design guide / capabilities pages (saved HTML or PDF) and enter values with source.url and source.date_verified."
+ },
+ "processes": [
+  {
+   "id": "sheet_metal_fabrication",
+   "name": "Sheet metal fabrication",
+   "thickness_match_tolerance_mm": 0.05,
+   "materials": [],
+   "tolerances": [],
+   "restrictions": [],
+   "notes": [],
+   "rules": [
     {
-      "id": "sheet_metal_fabrication",
-      "name": "Sheet metal fabrication",
-      "materials": [],
-      "notes": [],
-      "rules": [
-        {
-          "id": "xometry.bend_radius",
-          "type": "min_bend_radius",
-          "enabled": false,
-          "verified": false,
-          "severity": "ERROR",
-          "parameters": {},
-          "limitations": "Unverified: manufacturer documentation not retrieved."
-        },
-        {
-          "id": "xometry.flange",
-          "type": "min_flange_length",
-          "enabled": false,
-          "verified": false,
-          "severity": "ERROR",
-          "parameters": {},
-          "limitations": "Unverified: manufacturer documentation not retrieved."
-        },
-        {
-          "id": "xometry.hole_edge",
-          "type": "min_hole_edge_distance",
-          "enabled": false,
-          "verified": false,
-          "severity": "ERROR",
-          "parameters": {},
-          "limitations": "Unverified: manufacturer documentation not retrieved."
-        },
-        {
-          "id": "xometry.hole_bend",
-          "type": "min_hole_bend_distance",
-          "enabled": false,
-          "verified": false,
-          "severity": "ERROR",
-          "parameters": {},
-          "limitations": "Unverified: manufacturer documentation not retrieved."
-        },
-        {
-          "id": "xometry.hole_dia",
-          "type": "min_hole_diameter",
-          "enabled": false,
-          "verified": false,
-          "severity": "ERROR",
-          "parameters": {},
-          "limitations": "Unverified: manufacturer documentation not retrieved."
-        },
-        {
-          "id": "xometry.max_dims",
-          "type": "max_part_dimensions",
-          "enabled": false,
-          "verified": false,
-          "severity": "ERROR",
-          "parameters": {},
-          "limitations": "Unverified: manufacturer documentation not retrieved."
-        }
-      ]
+     "id": "xometry.min_bend_radius",
+     "type": "min_bend_radius",
+     "enabled": false,
+     "verified": false,
+     "severity": "ERROR",
+     "parameters": {},
+     "limitations": "Unverified: Xometry documentation for 'Minimum bend radius' could not be retrieved."
+    },
+    {
+     "id": "xometry.min_flange_length",
+     "type": "min_flange_length",
+     "enabled": false,
+     "verified": false,
+     "severity": "ERROR",
+     "parameters": {},
+     "limitations": "Unverified: Xometry documentation for 'Minimum flange length' could not be retrieved."
+    },
+    {
+     "id": "xometry.min_hole_diameter",
+     "type": "min_hole_diameter",
+     "enabled": false,
+     "verified": false,
+     "severity": "ERROR",
+     "parameters": {},
+     "limitations": "Unverified: Xometry documentation for 'Minimum hole/cutout size' could not be retrieved."
+    },
+    {
+     "id": "xometry.min_hole_edge_distance",
+     "type": "min_hole_edge_distance",
+     "enabled": false,
+     "verified": false,
+     "severity": "ERROR",
+     "parameters": {},
+     "limitations": "Unverified: Xometry documentation for 'Minimum hole-to-edge distance' could not be retrieved."
+    },
+    {
+     "id": "xometry.min_hole_bend_distance",
+     "type": "min_hole_bend_distance",
+     "enabled": false,
+     "verified": false,
+     "severity": "ERROR",
+     "parameters": {},
+     "limitations": "Unverified: Xometry documentation for 'Minimum hole-to-bend distance' could not be retrieved."
+    },
+    {
+     "id": "xometry.max_part_dimensions",
+     "type": "max_part_dimensions",
+     "enabled": false,
+     "verified": false,
+     "severity": "ERROR",
+     "parameters": {},
+     "limitations": "Unverified: Xometry documentation for 'Maximum flat part size' could not be retrieved."
+    },
+    {
+     "id": "xometry.thickness_range",
+     "type": "thickness_range",
+     "enabled": false,
+     "verified": false,
+     "severity": "ERROR",
+     "parameters": {},
+     "limitations": "Unverified: Xometry documentation for 'Supported material thickness' could not be retrieved."
     }
-  ]
+   ]
+  }
+ ]
 }
