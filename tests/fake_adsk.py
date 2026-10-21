@@ -23,7 +23,7 @@ class Geo:
 
 
 class Edge:
-    def __init__(self, kind, a=None, b=None, center=None, radius=None, axis=None, ang=(0, math.pi / 2)):
+    def __init__(self, kind, a=None, b=None, center=None, radius=None, axis=None, ang=(0, math.pi / 2), pts=None):
         self.kind, self.a, self.b = kind, a, b
         self.faces = []
         if kind == "line":
@@ -32,10 +32,15 @@ class Edge:
             self.length = math.dist(a, b)
             self._pts = [P(*a), P(*b)]
         elif kind == "arc":
-            self.geometry = Geo(curveType=1, startAngle=ang[0], endAngle=ang[1])
+            self.geometry = Geo(curveType=1, startAngle=ang[0], endAngle=ang[1], radius=radius if radius is not None else 0.3)
             self.startVertex = Geo(geometry=P(*a)); self.endVertex = Geo(geometry=P(*b))
             self.length = 0.3
-            self._pts = [P(*a), P(*b)]
+            self._pts = [P(*q) for q in pts] if pts else [P(*a), P(*b)]
+        elif kind == "spline":
+            self.geometry = Geo(curveType=9)
+            self.startVertex = Geo(geometry=P(*a)); self.endVertex = Geo(geometry=P(*b))
+            self.length = 1.0
+            self._pts = [P(*q) for q in pts]
         else:  # circle
             self.geometry = Geo(curveType=2, center=P(*center), radius=radius)
             self.startVertex = self.endVertex = Geo(geometry=P(center[0] + radius, center[1], center[2]))
@@ -44,8 +49,23 @@ class Edge:
         self.evaluator = Geo(getParameterExtents=lambda: (True, 0.0, 1.0), getStrokes=lambda f, t, tol: (True, self._pts))
 
 
+class Loop:
+    def __init__(self, is_outer, edges):
+        self.isOuter, self.edges = is_outer, edges
+        self.coEdges = [Geo(edge=e) for e in edges]
+
+
 class Face:
     _n = 0
+
+    @property
+    def loops(self):
+        """Fake topology: circle edges on a planar face are inner loops; everything else is the outer loop."""
+        if self.geometry.surfaceType == 0:
+            inner = [Loop(False, [e]) for e in self.edges if e.kind == "circle"]
+            outer = [e for e in self.edges if e.kind != "circle"]
+            return ([Loop(True, outer)] if outer else []) + inner + list(getattr(self, "extra_loops", []))
+        return [Loop(True, list(self.edges))]
 
     def __init__(self, geometry, normal=None, point=(0, 0, 0), area=1.0):
         Face._n += 1
@@ -102,17 +122,68 @@ def build_l_bracket(rule_thickness_cm=0.2, with_rule=True, with_flat=False):
                material=None)
     body = Geo(name="Bracket", isSheetMetal=True, isSolid=True, isVisible=True, volume=10.0,
                material=Geo(name="Steel, Mild"), parentComponent=comp, entityToken="bodytok",
-               faces=faces, boundingBox=Geo(minPoint=P(0, 0, 0), maxPoint=P(5.4, 4, 3.4)))
+               faces=faces, boundingBox=Geo(minPoint=P(0, 0, 0), maxPoint=P(5.4, 4, 3.4)), nativeObject=None, assemblyContext=None)
     return body, faces
 
 
-def install(body, selected=None):
+def build_plate(shapes, t=0.2, with_rule=True, wall_scale=1.0, name="Plate", comp_name="PlateComp"):
+    """Flat 10 x 6 cm sheet. shapes: list of dicts {"edges": [("line",(x,y),(x,y)) | ("arc",(x,y),(x,y),r,sweep_deg) |
+    ("spline",(x,y),(x,y),[pts])], "wall": fraction of t (default 1)} describing inner loops (x,y in cm)."""
+    top = plane((0, 0, 1), (5, 3, t), 60); bot = plane((0, 0, -1), (5, 3, 0), 60)
+    E = Edge
+    side = plane((0, 1, 0), (0, 0, 0.1), 1)
+    outer_t = [E("line", (0, 0, t), (10, 0, t)), E("line", (10, 0, t), (10, 6, t)), E("line", (10, 6, t), (0, 6, t)), E("line", (0, 6, t), (0, 0, t))]
+    outer_b = [E("line", (0, 0, 0), (10, 0, 0)), E("line", (10, 0, 0), (10, 6, 0)), E("line", (10, 6, 0), (0, 6, 0)), E("line", (0, 6, 0), (0, 0, 0))]
+    top.link(*outer_t); bot.link(*outer_b)
+    for e in outer_t + outer_b: e.faces.append(side)
+    top.extra_loops, bot.extra_loops = [], []
+    faces = [top, bot, side]
+    for sh in shapes:
+        tl, bl = [], []
+        wall_h = t * sh.get("wall", 1.0)
+        zb = t - wall_h          # bottom of the wall: 0 for a through-cut, higher for a pocket
+        for spec in sh["edges"]:
+            def mk(z):
+                if spec[0] == "line":
+                    return E("line", (*spec[1], z), (*spec[2], z))
+                if spec[0] == "arc":
+                    return E("arc", (*spec[1], z), (*spec[2], z), radius=spec[3], ang=(0, math.radians(spec[4])))
+                return E("spline", (*spec[1], z), (*spec[2], z), pts=[(x, y, z) for x, y in spec[3]])
+            et, eb = mk(t), mk(zb)
+            wall = plane((1, 0, 0), (spec[1][0], spec[1][1], t / 2), 0.5)
+            ev1 = E("line", (*spec[1], zb), (*spec[1], t)); ev2 = E("line", (*spec[2], zb), (*spec[2], t))
+            # wall edges: the real top/bottom edges plus verticals; wall_scale < 1 models a shallow pocket
+            wall.edges = [et, eb, ev1, ev2]
+            for e in (et, eb, ev1, ev2): e.faces.append(wall)
+            et.faces.append(top)
+            if wall_h >= t:
+                eb.faces.append(bot)
+            tl.append(et); bl.append(eb); faces.append(wall)
+        top.extra_loops.append(Loop(False, tl))
+        if wall_h >= t:
+            bot.extra_loops.append(Loop(False, bl))
+    comp = Geo(activeSheetMetalRule=Geo(name="Rule", thickness=Geo(value=t, expression="2 mm")) if with_rule else None,
+               flatPattern=None, material=None, name=comp_name)
+    body = Geo(name=name, isSheetMetal=True, isSolid=True, isVisible=True, volume=12.0, material=Geo(name="Steel"),
+               parentComponent=comp, entityToken="plate-" + name, faces=faces,
+               boundingBox=Geo(minPoint=P(0, 0, 0), maxPoint=P(10, 6, t)), nativeObject=None, assemblyContext=None)
+    return body
+
+
+def proxy_of(body, occ):
+    """Body proxy as seen through an occurrence."""
+    p = Geo(**body.__dict__)
+    p.nativeObject, p.assemblyContext = body, occ
+    return p
+
+
+def install(body, selected=None, occurrences=None, extra_root=()):
     """Put fake adsk into sys.modules; return a fake app whose active design holds `body`."""
     class Design:
         @staticmethod
         def cast(x): return x if isinstance(x, Design) else None
     d = Design()
-    d.rootComponent = Geo(bRepBodies=Collection([body]), allOccurrences=Collection(), name="Root")
+    d.rootComponent = Geo(bRepBodies=Collection([body, *extra_root]), allOccurrences=Collection(occurrences or []), name="Root")
     sel = Collection([Geo(entity=selected)] if selected else [])
     sel.clear = lambda: sel.__init__() or sel[:].clear()
     app = Geo(activeProduct=d, userInterface=Geo(activeSelections=sel), version="fake")
