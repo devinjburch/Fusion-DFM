@@ -3,7 +3,8 @@ from dfm_engine import (PartModel, Hole, Bend, Flange, GeometryRef, Status, load
 from dfm_engine.profile import DEFAULT_DIR
 
 DEMO = load_profile(os.path.join(DEFAULT_DIR, "demo.json"))
-SCS = load_profile(os.path.join(DEFAULT_DIR, "sendcutsend.json"))
+# Phase 1 SendCutSend profile (schema v1), kept as a fixture: proves backward compatibility of the engine.
+SCS = load_profile(os.path.join(os.path.dirname(__file__), "fixtures", "phase1_sendcutsend.json"))
 PCBWAY = load_profile(os.path.join(DEFAULT_DIR, "pcbway.json"))
 P = "sheet_metal_bending"
 

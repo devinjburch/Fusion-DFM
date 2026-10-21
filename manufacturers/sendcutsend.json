@@ -1,361 +1,2208 @@
 {
-  "schema_version": 1,
-  "manufacturer": {
-    "id": "sendcutsend",
-    "name": "SendCutSend",
-    "website": "https://sendcutsend.com"
-  },
-  "profile_status": "partially_verified",
-  "description": "Only values stated in the cited SendCutSend page text are enabled. Everything else is disabled.",
-  "processes": [
+ "schema_version": 2,
+ "manufacturer": {
+  "id": "sendcutsend",
+  "name": "SendCutSend",
+  "website": "https://sendcutsend.com"
+ },
+ "profile_status": "partially_verified",
+ "description": "Laser cutting + CNC bending of sheet metal. Values are transcribed from SendCutSend's published tables (retrieved 2026-10-20); nothing is inferred.",
+ "research": {
+  "status": "partial",
+  "attempted": "2026-10-20",
+  "notes": "Retrieved: bending calculator specs table, processing min/max chart, sheet-cutting, bending and bend-deformation guidelines, mild steel page. Not published/retrieved: hole-to-edge distance, feature-to-feature spacing, per-material minimum hole sizes, per-material cut tolerances other than mild steel."
+ },
+ "processes": [
+  {
+   "id": "sheet_metal_bending",
+   "name": "Laser cutting + CNC bending (sheet metal)",
+   "thickness_match_tolerance_mm": 0.05,
+   "materials": [
     {
-      "id": "sheet_metal_bending",
-      "name": "Laser cutting + CNC bending (sheet metal)",
-      "materials": [
-        {
-          "id": "aluminum_5052_h32",
-          "name": "5052 H32 Aluminum",
-          "aliases": [
-            "5052",
-            "aluminum 5052",
-            "aluminium 5052"
-          ]
-        },
-        {
-          "id": "brass",
-          "name": "Brass",
-          "aliases": [
-            "brass"
-          ]
-        },
-        {
-          "id": "chromoly_4130",
-          "name": "4130 Chromoly",
-          "aliases": [
-            "4130",
-            "chromoly"
-          ]
-        },
-        {
-          "id": "copper",
-          "name": "Copper",
-          "aliases": [
-            "copper"
-          ]
-        },
-        {
-          "id": "galvanized_g90",
-          "name": "G90 Galvanized Steel",
-          "aliases": [
-            "g90",
-            "galvanized"
-          ]
-        },
-        {
-          "id": "mild_steel",
-          "name": "Mild Steel",
-          "aliases": [
-            "mild steel",
-            "cold rolled",
-            "low carbon"
-          ]
-        },
-        {
-          "id": "stainless_304",
-          "name": "304 Stainless Steel",
-          "aliases": [
-            "304"
-          ]
-        },
-        {
-          "id": "stainless_316",
-          "name": "316 Stainless Steel",
-          "aliases": [
-            "316"
-          ]
-        },
-        {
-          "id": "titanium_grade2",
-          "name": "Grade 2 Titanium",
-          "aliases": [
-            "titanium"
-          ]
-        }
-      ],
-      "notes": [
-        "U/C-channel: base must be at least 2x flange length (not yet modelled).",
-        "3/4-sided boxes without hardware: max flange length 5 in (not yet modelled).",
-        "Bend angle tolerance +/-1 deg up to 24 in (informational)."
-      ],
-      "rules": [
-        {
-          "id": "scs.thickness.aluminum_5052_h32",
-          "type": "thickness_range",
-          "enabled": true,
-          "verified": true,
-          "severity": "ERROR",
-          "applies_to": {
-            "materials": [
-              "aluminum_5052_h32"
-            ]
-          },
-          "parameters": {
-            "min_mm": 1.016,
-            "max_mm": 6.35
-          },
+     "id": "aluminum_5052_h32",
+     "name": "5052 H32 Aluminum",
+     "aliases": [
+      "5052",
+      "aluminum 5052",
+      "aluminium 5052"
+     ],
+     "thickness_specs": [
+      {
+       "thickness_mm": 1.016,
+       "thickness_source": "0.040 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.45,
+        "bend_deduction_mm": 1.5748,
+        "bend_radius_mm": 0.6096,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.2644,
+        "min_corner_relief_mm": 0.6096,
+        "bend_relief_depth_mm": 2.1336,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.6002,
+       "thickness_source": "0.063 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.42,
+        "bend_deduction_mm": 2.4384,
+        "bend_radius_mm": 0.889,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.6962,
+        "min_corner_relief_mm": 0.762,
+        "bend_relief_depth_mm": 2.9972,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 2.032,
+       "thickness_source": "0.080 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.48,
+        "bend_deduction_mm": 2.9464,
+        "bend_radius_mm": 0.9652,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.9502,
+        "min_corner_relief_mm": 0.9398,
+        "bend_relief_depth_mm": 3.5052,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       },
+       "conflicts": {
+        "bend_radius_mm": [
+         {
+          "value": 0.9652,
           "source": {
-            "url": "https://sendcutsend.com/guidelines/bending/",
-            "date_verified": "2026-10-20",
-            "note": "Bending page lists 5052 H32 Aluminum: 8 thicknesses, 0.04\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
-          },
-          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
-        },
-        {
-          "id": "scs.thickness.brass",
-          "type": "thickness_range",
-          "enabled": true,
-          "verified": true,
-          "severity": "ERROR",
-          "applies_to": {
-            "materials": [
-              "brass"
-            ]
-          },
-          "parameters": {
-            "min_mm": 1.016,
-            "max_mm": 6.35
-          },
+           "url": "https://sendcutsend.com/bending-calculator/",
+           "date_verified": "2026-10-20",
+           "note": "Bending specifications per material table"
+          }
+         },
+         {
+          "value": 1.143,
           "source": {
-            "url": "https://sendcutsend.com/guidelines/bending/",
-            "date_verified": "2026-10-20",
-            "note": "Bending page lists Brass: 5 thicknesses, 0.04\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
-          },
-          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
-        },
-        {
-          "id": "scs.thickness.chromoly_4130",
-          "type": "thickness_range",
-          "enabled": true,
-          "verified": true,
-          "severity": "ERROR",
-          "applies_to": {
-            "materials": [
-              "chromoly_4130"
-            ]
-          },
-          "parameters": {
-            "min_mm": 1.27,
-            "max_mm": 6.35
-          },
-          "source": {
-            "url": "https://sendcutsend.com/guidelines/bending/",
-            "date_verified": "2026-10-20",
-            "note": "Bending page lists 4130 Chromoly: 5 thicknesses, 0.05\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
-          },
-          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
-        },
-        {
-          "id": "scs.thickness.copper",
-          "type": "thickness_range",
-          "enabled": true,
-          "verified": true,
-          "severity": "ERROR",
-          "applies_to": {
-            "materials": [
-              "copper"
-            ]
-          },
-          "parameters": {
-            "min_mm": 0.8128,
-            "max_mm": 6.35
-          },
-          "source": {
-            "url": "https://sendcutsend.com/guidelines/bending/",
-            "date_verified": "2026-10-20",
-            "note": "Bending page lists Copper: 6 thicknesses, 0.032\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
-          },
-          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
-        },
-        {
-          "id": "scs.thickness.galvanized_g90",
-          "type": "thickness_range",
-          "enabled": true,
-          "verified": true,
-          "severity": "ERROR",
-          "applies_to": {
-            "materials": [
-              "galvanized_g90"
-            ]
-          },
-          "parameters": {
-            "min_mm": 0.762,
-            "max_mm": 1.8796
-          },
-          "source": {
-            "url": "https://sendcutsend.com/guidelines/bending/",
-            "date_verified": "2026-10-20",
-            "note": "Bending page lists G90 Galvanized Steel: 4 thicknesses, 0.03\" - 0.074\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
-          },
-          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
-        },
-        {
-          "id": "scs.thickness.mild_steel",
-          "type": "thickness_range",
-          "enabled": true,
-          "verified": true,
-          "severity": "ERROR",
-          "applies_to": {
-            "materials": [
-              "mild_steel"
-            ]
-          },
-          "parameters": {
-            "min_mm": 0.762,
-            "max_mm": 6.35
-          },
-          "source": {
-            "url": "https://sendcutsend.com/guidelines/bending/",
-            "date_verified": "2026-10-20",
-            "note": "Bending page lists Mild Steel: 9 thicknesses, 0.03\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
-          },
-          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
-        },
-        {
-          "id": "scs.thickness.stainless_304",
-          "type": "thickness_range",
-          "enabled": true,
-          "verified": true,
-          "severity": "ERROR",
-          "applies_to": {
-            "materials": [
-              "stainless_304"
-            ]
-          },
-          "parameters": {
-            "min_mm": 0.762,
-            "max_mm": 6.35
-          },
-          "source": {
-            "url": "https://sendcutsend.com/guidelines/bending/",
-            "date_verified": "2026-10-20",
-            "note": "Bending page lists 304 Stainless Steel: 8 thicknesses, 0.03\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
-          },
-          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
-        },
-        {
-          "id": "scs.thickness.stainless_316",
-          "type": "thickness_range",
-          "enabled": true,
-          "verified": true,
-          "severity": "ERROR",
-          "applies_to": {
-            "materials": [
-              "stainless_316"
-            ]
-          },
-          "parameters": {
-            "min_mm": 1.524,
-            "max_mm": 6.35
-          },
-          "source": {
-            "url": "https://sendcutsend.com/guidelines/bending/",
-            "date_verified": "2026-10-20",
-            "note": "Bending page lists 316 Stainless Steel: 4 thicknesses, 0.06\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
-          },
-          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
-        },
-        {
-          "id": "scs.thickness.titanium_grade2",
-          "type": "thickness_range",
-          "enabled": true,
-          "verified": true,
-          "severity": "ERROR",
-          "applies_to": {
-            "materials": [
-              "titanium_grade2"
-            ]
-          },
-          "parameters": {
-            "min_mm": 1.016,
-            "max_mm": 1.016
-          },
-          "source": {
-            "url": "https://sendcutsend.com/guidelines/bending/",
-            "date_verified": "2026-10-20",
-            "note": "Bending page lists Grade 2 Titanium: 1 thicknesses, 0.04\" - 0.04\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
-          },
-          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
-        },
-        {
-          "id": "scs.max_flat_size",
-          "type": "max_part_dimensions",
-          "enabled": true,
-          "verified": true,
-          "severity": "ERROR",
-          "parameters": {
-            "max_long_mm": 1117.6,
-            "max_short_mm": 762.0
-          },
-          "source": {
-            "url": "https://sendcutsend.com/guidelines/bending/",
-            "date_verified": "2026-10-20",
-            "note": "\"Max part size (flat) 30\" x 44\"\". Sizing limits apply to flat parts before bending."
-          },
-          "limitations": "General upper bound; material-specific limits on the Processing Min/Max Size Charts may be smaller. Needs the flat pattern."
-        },
-        {
-          "id": "scs.min_hole_diameter_laser",
-          "type": "min_hole_diameter",
-          "enabled": true,
-          "verified": true,
-          "severity": "WARNING",
-          "parameters": {
-            "min_ratio_to_thickness": 0.5
-          },
-          "source": {
-            "url": "https://sendcutsend.com/guidelines/bending/",
-            "date_verified": "2026-10-20",
-            "note": "Pre-flight checklist: \"All holes and cutouts are at least 50% material thickness for laser cut parts\"."
-          },
-          "limitations": "Applies to laser-cut parts only. Waterjet (0.070 in) and CNC-routed (0.125 in) limits differ and are not modelled."
-        },
-        {
-          "id": "scs.min_bend_radius",
-          "type": "min_bend_radius",
-          "enabled": false,
-          "verified": false,
-          "severity": "ERROR",
-          "parameters": {},
-          "limitations": "SendCutSend sets bend radius per material and thickness in its Bending Specifications chart, which is not machine-readable from the page text retrieved. Not entered rather than guessed."
-        },
-        {
-          "id": "scs.min_flange_length",
-          "type": "min_flange_length",
-          "enabled": false,
-          "verified": false,
-          "severity": "ERROR",
-          "parameters": {},
-          "limitations": "Minimum flange length depends on material and thickness (per-material spec chart in the Material Catalog); not retrieved."
-        },
-        {
-          "id": "scs.min_hole_edge_distance",
-          "type": "min_hole_edge_distance",
-          "enabled": false,
-          "verified": false,
-          "severity": "ERROR",
-          "parameters": {},
-          "limitations": "No hole-to-edge value located in the retrieved pages."
-        },
-        {
-          "id": "scs.min_hole_bend_distance",
-          "type": "min_hole_bend_distance",
-          "enabled": false,
-          "verified": false,
-          "severity": "ERROR",
-          "parameters": {},
-          "limitations": "Hole-to-bend requirements depend on die width / thickness tables not retrieved."
-        }
-      ]
+           "url": "https://sendcutsend.com/materials/processing-min-max/",
+           "date_verified": "2026-10-20",
+           "note": "Min/max part sizes for bending table"
+          }
+         }
+        ]
+       },
+       "note": "SendCutSend's two published tables disagree on the bend radius (0.038\" vs 0.045\"); both are kept and checks give NEEDS_REVIEW unless the outcome is the same under both."
+      },
+      {
+       "thickness_mm": 2.286,
+       "thickness_source": "0.090 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.37,
+        "bend_deduction_mm": 3.6068,
+        "bend_radius_mm": 0.8128,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 8.2804,
+        "min_corner_relief_mm": 0.8636,
+        "bend_relief_depth_mm": 3.6068,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 2.54,
+       "thickness_source": "0.100 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.4,
+        "bend_deduction_mm": 4.8514,
+        "bend_radius_mm": 3.175,
+        "die_width_mm": 16.002,
+        "min_flange_length_mm": 11.7602,
+        "min_corner_relief_mm": 0.508,
+        "bend_relief_depth_mm": 6.223,
+        "min_flange_flat_pattern_mm": 9.3472,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 3.175,
+       "thickness_source": "0.125 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.44,
+        "bend_deduction_mm": 5.4864,
+        "bend_radius_mm": 3.175,
+        "die_width_mm": 16.002,
+        "min_flange_length_mm": 12.0904,
+        "min_corner_relief_mm": 0.8128,
+        "bend_relief_depth_mm": 6.858,
+        "min_flange_flat_pattern_mm": 9.3472,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 4.7498,
+       "thickness_source": "0.187 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.43,
+        "bend_deduction_mm": 9.0424,
+        "bend_radius_mm": 6.35,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 20.2692,
+        "min_corner_relief_mm": 0.6096,
+        "bend_relief_depth_mm": 11.6078,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 6.35,
+       "thickness_source": "0.250 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.42,
+        "bend_deduction_mm": 11.2268,
+        "bend_radius_mm": 6.35,
+        "die_width_mm": 40.005,
+        "min_flange_length_mm": 34.8234,
+        "min_corner_relief_mm": 1.1176,
+        "bend_relief_depth_mm": 13.208,
+        "min_flange_flat_pattern_mm": 29.21,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         63.5
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 9.525,
+       "thickness_source": "0.375 in",
+       "bendable": false,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {},
+       "note": "Listed as N/A (not bendable) in both published bending tables."
+      },
+      {
+       "thickness_mm": 12.7,
+       "thickness_source": "0.500 in",
+       "bendable": false,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {},
+       "note": "Listed as N/A (not bendable) in both published bending tables."
+      }
+     ]
+    },
+    {
+     "id": "brass",
+     "name": "Brass",
+     "aliases": [
+      "brass"
+     ],
+     "thickness_specs": [
+      {
+       "thickness_mm": 1.016,
+       "thickness_source": "0.040 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 1.8796,
+        "bend_radius_mm": 1.016,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.4168,
+        "min_corner_relief_mm": 0.4572,
+        "bend_relief_depth_mm": 2.54,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.6002,
+       "thickness_source": "0.063 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 2.667,
+        "bend_radius_mm": 1.016,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.8232,
+        "min_corner_relief_mm": 0.6604,
+        "bend_relief_depth_mm": 3.1242,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 3.175,
+       "thickness_source": "0.125 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.36,
+        "bend_deduction_mm": 5.207,
+        "bend_radius_mm": 1.524,
+        "die_width_mm": 16.002,
+        "min_flange_length_mm": 11.9634,
+        "min_corner_relief_mm": 0.9652,
+        "bend_relief_depth_mm": 5.207,
+        "min_flange_flat_pattern_mm": 9.3472,
+        "max_bend_length_mm": 838.2,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 4.7498,
+       "thickness_source": "0.187 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 8.2296,
+        "bend_radius_mm": 2.413,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 19.8628,
+        "min_corner_relief_mm": 1.016,
+        "bend_relief_depth_mm": 7.6708,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 457.2,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 6.35,
+       "thickness_source": "0.250 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 10.7696,
+        "bend_radius_mm": 3.302,
+        "die_width_mm": 40.005,
+        "min_flange_length_mm": 34.5948,
+        "min_corner_relief_mm": 1.3462,
+        "bend_relief_depth_mm": 10.16,
+        "min_flange_flat_pattern_mm": 29.21,
+        "max_bend_length_mm": 635.0,
+        "min_flat_size_mm": [
+         9.525,
+         63.5
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "id": "chromoly_4130",
+     "name": "4130 Chromoly",
+     "aliases": [
+      "4130",
+      "chromoly"
+     ],
+     "thickness_specs": [
+      {
+       "thickness_mm": 1.27,
+       "thickness_source": "0.050 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 2.4003,
+        "bend_radius_mm": 1.27,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.6708,
+        "min_corner_relief_mm": 0.4572,
+        "bend_relief_depth_mm": 3.048,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.6002,
+       "thickness_source": "0.063 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.41,
+        "bend_deduction_mm": 2.7051,
+        "bend_radius_mm": 1.27,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.8232,
+        "min_corner_relief_mm": 0.635,
+        "bend_relief_depth_mm": 3.3782,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 3.175,
+       "thickness_source": "0.125 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.43,
+        "bend_deduction_mm": 5.207,
+        "bend_radius_mm": 2.286,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 18.3642,
+        "min_corner_relief_mm": 0.9652,
+        "bend_relief_depth_mm": 5.969,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 762.0,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 4.826,
+       "thickness_source": "0.190 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.37,
+        "bend_deduction_mm": 8.2296,
+        "bend_radius_mm": 3.175,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 19.8628,
+        "min_corner_relief_mm": 1.0922,
+        "bend_relief_depth_mm": 8.509,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 457.2,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 6.35,
+       "thickness_source": "0.250 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.36,
+        "bend_deduction_mm": 11.0109,
+        "bend_radius_mm": 4.318,
+        "die_width_mm": 40.005,
+        "min_flange_length_mm": 34.7218,
+        "min_corner_relief_mm": 1.2192,
+        "bend_relief_depth_mm": 11.176,
+        "min_flange_flat_pattern_mm": 29.21,
+        "max_bend_length_mm": 406.4,
+        "min_flat_size_mm": [
+         9.525,
+         63.5
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "id": "copper",
+     "name": "Copper",
+     "aliases": [
+      "copper"
+     ],
+     "thickness_specs": [
+      {
+       "thickness_mm": 1.016,
+       "thickness_source": "0.040 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.34,
+        "bend_deduction_mm": 2.0574,
+        "bend_radius_mm": 1.3208,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.5184,
+        "min_corner_relief_mm": 0.381,
+        "bend_relief_depth_mm": 2.8448,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.6002,
+       "thickness_source": "0.063 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.36,
+        "bend_deduction_mm": 2.5146,
+        "bend_radius_mm": 0.6096,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.747,
+        "min_corner_relief_mm": 0.7366,
+        "bend_relief_depth_mm": 2.7178,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 3.175,
+       "thickness_source": "0.125 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.34,
+        "bend_deduction_mm": 5.207,
+        "bend_radius_mm": 1.27,
+        "die_width_mm": 16.002,
+        "min_flange_length_mm": 11.9634,
+        "min_corner_relief_mm": 0.9652,
+        "bend_relief_depth_mm": 4.953,
+        "min_flange_flat_pattern_mm": 9.3472,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 4.7498,
+       "thickness_source": "0.187 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.36,
+        "bend_deduction_mm": 8.128,
+        "bend_radius_mm": 2.9972,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 19.812,
+        "min_corner_relief_mm": 1.0668,
+        "bend_relief_depth_mm": 8.255,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 6.35,
+       "thickness_source": "0.250 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.33,
+        "bend_deduction_mm": 10.922,
+        "bend_radius_mm": 3.556,
+        "die_width_mm": 40.005,
+        "min_flange_length_mm": 34.671,
+        "min_corner_relief_mm": 1.27,
+        "bend_relief_depth_mm": 10.414,
+        "min_flange_flat_pattern_mm": 29.21,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         63.5
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "id": "galvanized_g90",
+     "name": "G90 Galvanized Steel",
+     "aliases": [
+      "g90",
+      "galvanized"
+     ],
+     "thickness_specs": [
+      {
+       "thickness_mm": 0.762,
+       "thickness_source": "0.030 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 1.5494,
+        "bend_radius_mm": 1.143,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.2644,
+        "min_corner_relief_mm": 0.381,
+        "bend_relief_depth_mm": 2.413,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.2192,
+       "thickness_source": "0.048 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 2.1844,
+        "bend_radius_mm": 1.143,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.5692,
+        "min_corner_relief_mm": 0.508,
+        "bend_relief_depth_mm": 2.8702,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.4986,
+       "thickness_source": "0.059 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.36,
+        "bend_deduction_mm": 2.8448,
+        "bend_radius_mm": 1.6002,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.8994,
+        "min_corner_relief_mm": 0.4572,
+        "bend_relief_depth_mm": 3.6068,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.8796,
+       "thickness_source": "0.074 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.4,
+        "bend_deduction_mm": 3.2766,
+        "bend_radius_mm": 1.6002,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 8.128,
+        "min_corner_relief_mm": 0.635,
+        "bend_relief_depth_mm": 3.9878,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         63.5
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "id": "mild_steel",
+     "name": "Mild Steel",
+     "aliases": [
+      "mild steel",
+      "cold rolled",
+      "low carbon"
+     ],
+     "thickness_specs": [
+      {
+       "thickness_mm": 0.762,
+       "thickness_source": "0.030 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 1.5494,
+        "bend_radius_mm": 1.143,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.2644,
+        "min_corner_relief_mm": 0.381,
+        "bend_relief_depth_mm": 2.413,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.2192,
+       "thickness_source": "0.048 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 2.1844,
+        "bend_radius_mm": 1.143,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.5692,
+        "min_corner_relief_mm": 0.508,
+        "bend_relief_depth_mm": 2.8702,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.4986,
+       "thickness_source": "0.059 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.4,
+        "bend_deduction_mm": 2.7432,
+        "bend_radius_mm": 1.6002,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.8486,
+        "min_corner_relief_mm": 0.508,
+        "bend_relief_depth_mm": 3.6068,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.8796,
+       "thickness_source": "0.074 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.4,
+        "bend_deduction_mm": 3.2766,
+        "bend_radius_mm": 1.6002,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 8.128,
+        "min_corner_relief_mm": 0.635,
+        "bend_relief_depth_mm": 3.9878,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 2.6416,
+       "thickness_source": "0.104 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.34,
+        "bend_deduction_mm": 4.6101,
+        "bend_radius_mm": 1.6002,
+        "die_width_mm": 16.002,
+        "min_flange_length_mm": 11.6586,
+        "min_corner_relief_mm": 0.7112,
+        "bend_relief_depth_mm": 4.7498,
+        "min_flange_flat_pattern_mm": 9.3472,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 3.0226,
+       "thickness_source": "0.119 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 4.9657,
+        "bend_radius_mm": 1.6002,
+        "die_width_mm": 16.002,
+        "min_flange_length_mm": 11.8364,
+        "min_corner_relief_mm": 0.9144,
+        "bend_relief_depth_mm": 5.1308,
+        "min_flange_flat_pattern_mm": 9.3472,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 3.429,
+       "thickness_source": "0.135 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.32,
+        "bend_deduction_mm": 6.1976,
+        "bend_radius_mm": 2.54,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 18.8468,
+        "min_corner_relief_mm": 0.7112,
+        "bend_relief_depth_mm": 6.477,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 4.7498,
+       "thickness_source": "0.187 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.36,
+        "bend_deduction_mm": 8.1915,
+        "bend_radius_mm": 3.175,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 19.8374,
+        "min_corner_relief_mm": 1.0414,
+        "bend_relief_depth_mm": 8.4328,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 558.8,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 6.35,
+       "thickness_source": "0.250 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.36,
+        "bend_deduction_mm": 10.7061,
+        "bend_radius_mm": 3.81,
+        "die_width_mm": 40.005,
+        "min_flange_length_mm": 34.5694,
+        "min_corner_relief_mm": 1.3716,
+        "bend_relief_depth_mm": 10.668,
+        "min_flange_flat_pattern_mm": 29.21,
+        "max_bend_length_mm": 508.0,
+        "min_flat_size_mm": [
+         9.525,
+         63.5
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 7.9502,
+       "thickness_source": "0.313 in",
+       "bendable": false,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {},
+       "note": "Listed as N/A (not bendable) in both published bending tables."
+      },
+      {
+       "thickness_mm": 9.525,
+       "thickness_source": "0.375 in",
+       "bendable": false,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {},
+       "note": "Listed as N/A (not bendable) in both published bending tables."
+      },
+      {
+       "thickness_mm": 12.7,
+       "thickness_source": "0.500 in",
+       "bendable": false,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {},
+       "note": "Listed as N/A (not bendable) in both published bending tables."
+      }
+     ]
+    },
+    {
+     "id": "stainless_304",
+     "name": "304 Stainless Steel",
+     "aliases": [
+      "304"
+     ],
+     "thickness_specs": [
+      {
+       "thickness_mm": 0.762,
+       "thickness_source": "0.030 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.36,
+        "bend_deduction_mm": 1.9939,
+        "bend_radius_mm": 2.032,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.4676,
+        "min_corner_relief_mm": 0.1524,
+        "bend_relief_depth_mm": 3.302,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.2192,
+       "thickness_source": "0.048 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.36,
+        "bend_deduction_mm": 2.6543,
+        "bend_radius_mm": 2.032,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.7978,
+        "min_corner_relief_mm": 0.2794,
+        "bend_relief_depth_mm": 3.7592,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.524,
+       "thickness_source": "0.060 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.34,
+        "bend_deduction_mm": 3.0099,
+        "bend_radius_mm": 1.778,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.9756,
+        "min_corner_relief_mm": 0.4064,
+        "bend_relief_depth_mm": 3.81,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 1.8796,
+       "thickness_source": "0.074 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.36,
+        "bend_deduction_mm": 3.4798,
+        "bend_radius_mm": 1.905,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 8.2296,
+        "min_corner_relief_mm": 0.5334,
+        "bend_relief_depth_mm": 4.2926,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 2.54,
+       "thickness_source": "0.100 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.36,
+        "bend_deduction_mm": 5.6642,
+        "bend_radius_mm": 4.7498,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 18.5928,
+        "min_corner_relief_mm": 0.1016,
+        "bend_relief_depth_mm": 7.7978,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 889.0,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 3.175,
+       "thickness_source": "0.125 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 6.096,
+        "bend_radius_mm": 3.81,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 18.796,
+        "min_corner_relief_mm": 0.508,
+        "bend_relief_depth_mm": 7.493,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 1016.0,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 4.7498,
+       "thickness_source": "0.187 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.35,
+        "bend_deduction_mm": 8.3439,
+        "bend_radius_mm": 3.302,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 19.9136,
+        "min_corner_relief_mm": 0.9652,
+        "bend_relief_depth_mm": 8.5598,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 914.4,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 6.35,
+       "thickness_source": "0.250 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.34,
+        "bend_deduction_mm": 11.7348,
+        "bend_radius_mm": 5.715,
+        "die_width_mm": 40.005,
+        "min_flange_length_mm": 35.0774,
+        "min_corner_relief_mm": 0.8636,
+        "bend_relief_depth_mm": 12.573,
+        "min_flange_flat_pattern_mm": 29.21,
+        "max_bend_length_mm": 457.2,
+        "min_flat_size_mm": [
+         9.525,
+         63.5
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 9.525,
+       "thickness_source": "0.375 in",
+       "bendable": false,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {},
+       "note": "Listed as N/A (not bendable) in both published bending tables."
+      },
+      {
+       "thickness_mm": 12.7,
+       "thickness_source": "0.500 in",
+       "bendable": false,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {},
+       "note": "Listed as N/A (not bendable) in both published bending tables."
+      }
+     ]
+    },
+    {
+     "id": "stainless_316",
+     "name": "316 Stainless Steel",
+     "aliases": [
+      "316"
+     ],
+     "thickness_specs": [
+      {
+       "thickness_mm": 1.524,
+       "thickness_source": "0.060 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.34,
+        "bend_deduction_mm": 3.0099,
+        "bend_radius_mm": 1.778,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.9756,
+        "min_corner_relief_mm": 0.4064,
+        "bend_relief_depth_mm": 3.81,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 3.175,
+       "thickness_source": "0.125 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 6.096,
+        "bend_radius_mm": 3.81,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 18.796,
+        "min_corner_relief_mm": 0.508,
+        "bend_relief_depth_mm": 7.493,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 457.2,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 4.7498,
+       "thickness_source": "0.187 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.35,
+        "bend_deduction_mm": 8.3439,
+        "bend_radius_mm": 3.302,
+        "die_width_mm": 24.9936,
+        "min_flange_length_mm": 19.9136,
+        "min_corner_relief_mm": 0.9652,
+        "bend_relief_depth_mm": 8.5598,
+        "min_flange_flat_pattern_mm": 15.748,
+        "max_bend_length_mm": 457.2,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      },
+      {
+       "thickness_mm": 6.35,
+       "thickness_source": "0.250 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.34,
+        "bend_deduction_mm": 11.7348,
+        "bend_radius_mm": 5.715,
+        "die_width_mm": 40.005,
+        "min_flange_length_mm": 35.0774,
+        "min_corner_relief_mm": 0.8636,
+        "bend_relief_depth_mm": 12.573,
+        "min_flange_flat_pattern_mm": 29.21,
+        "max_bend_length_mm": 457.2,
+        "min_flat_size_mm": [
+         9.525,
+         63.5
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "id": "titanium_grade2",
+     "name": "Grade 2 Titanium",
+     "aliases": [
+      "titanium"
+     ],
+     "thickness_specs": [
+      {
+       "thickness_mm": 1.016,
+       "thickness_source": "0.040 in",
+       "bendable": true,
+       "source": {
+        "url": "https://sendcutsend.com/bending-calculator/",
+        "also": [
+         "https://sendcutsend.com/materials/processing-min-max/"
+        ],
+        "date_verified": "2026-10-20"
+       },
+       "values": {
+        "k_factor": 0.38,
+        "bend_deduction_mm": 2.0066,
+        "bend_radius_mm": 1.143,
+        "die_width_mm": 11.9888,
+        "min_flange_length_mm": 7.493,
+        "min_corner_relief_mm": 0.4064,
+        "bend_relief_depth_mm": 2.667,
+        "min_flange_flat_pattern_mm": 6.477,
+        "max_bend_length_mm": 1117.6,
+        "min_flat_size_mm": [
+         9.525,
+         38.1
+        ],
+        "max_flat_size_mm": [
+         762.0,
+         1117.6
+        ]
+       }
+      }
+     ]
     }
-  ]
+   ],
+   "tolerances": [
+    {
+     "id": "scs.tol.laser.mild_steel",
+     "text": "Laser cut tolerance +/-0.005 in across .030-.500 in (mild steel)",
+     "value": 0.127,
+     "units": "mm",
+     "applies_to": "mild_steel",
+     "source": {
+      "url": "https://sendcutsend.com/materials/mild-steel/",
+      "date_verified": "2026-10-20"
+     }
+    },
+    {
+     "id": "scs.tol.bend_angle",
+     "text": "Sheet metal bend angle tolerance +/-1 deg (bends up to 24 in), +/-2 deg (longer)",
+     "value": 1,
+     "units": "deg",
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20"
+     }
+    },
+    {
+     "id": "scs.tol.bend_to_edge",
+     "text": "Bend-to-edge tolerance +/-0.015 in (each additional bend adds at least 0.015 in)",
+     "value": 0.381,
+     "units": "mm",
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20"
+     }
+    }
+   ],
+   "restrictions": [
+    {
+     "id": "scs.r.channel_ratio",
+     "text": "U/C-channel: base must be at least 2x the flange length (sheet metal).",
+     "modelled": false,
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20"
+     }
+    },
+    {
+     "id": "scs.r.box_flange",
+     "text": "3/4-sided boxes without hardware: max flange length 5 in; flanges 3.5-5 in need min flange width 1.1 in; with hardware max 3.00 in.",
+     "modelled": false,
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20"
+     }
+    },
+    {
+     "id": "scs.r.bend_angles",
+     "text": "Cannot bend: acute angles greater than 130 deg, obtuse angles less than 5 deg; no curl/bump/roll forming, coining or hemming. 'Max bend angle 130 deg' (angle convention not defined on the page, so not modelled).",
+     "modelled": false,
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20"
+     }
+    },
+    {
+     "id": "scs.r.single_body",
+     "text": "STEP/STP uploads must contain a single solid sheet metal body; assemblies/multi-body files must be uploaded as separate files.",
+     "modelled": false,
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/sheet-cutting/",
+      "date_verified": "2026-10-20"
+     }
+    },
+    {
+     "id": "scs.r.model_at_spec",
+     "text": "Model at stock thickness with SendCutSend's K-factor and bend radius, or the file can error with open contours.",
+     "modelled": false,
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/sheet-cutting/",
+      "date_verified": "2026-10-20"
+     }
+    },
+    {
+     "id": "scs.r.square_relief",
+     "text": "Use square bend reliefs (not tapered/rounded) for STEP uploads.",
+     "modelled": false,
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/sheet-cutting/",
+      "date_verified": "2026-10-20"
+     }
+    }
+   ],
+   "notes": [
+    "Hole-to-edge, feature-to-feature spacing and per-material hole minimums are not published in the retrieved pages."
+   ],
+   "rules": [
+    {
+     "id": "scs.thickness.aluminum_5052_h32",
+     "type": "thickness_range",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "applies_to": {
+      "materials": [
+       "aluminum_5052_h32"
+      ]
+     },
+     "parameters": {
+      "min_mm": 1.016,
+      "max_mm": 6.35
+     },
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20",
+      "note": "Bending page lists 5052 H32 Aluminum: 8 thicknesses, 0.04\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+     },
+     "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+    },
+    {
+     "id": "scs.thickness.brass",
+     "type": "thickness_range",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "applies_to": {
+      "materials": [
+       "brass"
+      ]
+     },
+     "parameters": {
+      "min_mm": 1.016,
+      "max_mm": 6.35
+     },
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20",
+      "note": "Bending page lists Brass: 5 thicknesses, 0.04\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+     },
+     "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+    },
+    {
+     "id": "scs.thickness.chromoly_4130",
+     "type": "thickness_range",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "applies_to": {
+      "materials": [
+       "chromoly_4130"
+      ]
+     },
+     "parameters": {
+      "min_mm": 1.27,
+      "max_mm": 6.35
+     },
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20",
+      "note": "Bending page lists 4130 Chromoly: 5 thicknesses, 0.05\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+     },
+     "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+    },
+    {
+     "id": "scs.thickness.copper",
+     "type": "thickness_range",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "applies_to": {
+      "materials": [
+       "copper"
+      ]
+     },
+     "parameters": {
+      "min_mm": 0.8128,
+      "max_mm": 6.35
+     },
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20",
+      "note": "Bending page lists Copper: 6 thicknesses, 0.032\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+     },
+     "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+    },
+    {
+     "id": "scs.thickness.galvanized_g90",
+     "type": "thickness_range",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "applies_to": {
+      "materials": [
+       "galvanized_g90"
+      ]
+     },
+     "parameters": {
+      "min_mm": 0.762,
+      "max_mm": 1.8796
+     },
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20",
+      "note": "Bending page lists G90 Galvanized Steel: 4 thicknesses, 0.03\" - 0.074\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+     },
+     "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+    },
+    {
+     "id": "scs.thickness.mild_steel",
+     "type": "thickness_range",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "applies_to": {
+      "materials": [
+       "mild_steel"
+      ]
+     },
+     "parameters": {
+      "min_mm": 0.762,
+      "max_mm": 6.35
+     },
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20",
+      "note": "Bending page lists Mild Steel: 9 thicknesses, 0.03\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+     },
+     "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+    },
+    {
+     "id": "scs.thickness.stainless_304",
+     "type": "thickness_range",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "applies_to": {
+      "materials": [
+       "stainless_304"
+      ]
+     },
+     "parameters": {
+      "min_mm": 0.762,
+      "max_mm": 6.35
+     },
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20",
+      "note": "Bending page lists 304 Stainless Steel: 8 thicknesses, 0.03\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+     },
+     "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+    },
+    {
+     "id": "scs.thickness.stainless_316",
+     "type": "thickness_range",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "applies_to": {
+      "materials": [
+       "stainless_316"
+      ]
+     },
+     "parameters": {
+      "min_mm": 1.524,
+      "max_mm": 6.35
+     },
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20",
+      "note": "Bending page lists 316 Stainless Steel: 4 thicknesses, 0.06\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+     },
+     "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+    },
+    {
+     "id": "scs.thickness.titanium_grade2",
+     "type": "thickness_range",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "applies_to": {
+      "materials": [
+       "titanium_grade2"
+      ]
+     },
+     "parameters": {
+      "min_mm": 1.016,
+      "max_mm": 1.016
+     },
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bending/",
+      "date_verified": "2026-10-20",
+      "note": "Bending page lists Grade 2 Titanium: 1 thicknesses, 0.04\" - 0.04\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+     },
+     "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+    },
+    {
+     "id": "scs.thickness_in_stock",
+     "type": "thickness_in_stock",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {},
+     "source": {
+      "url": "https://sendcutsend.com/bending-calculator/",
+      "also": [
+       "https://sendcutsend.com/materials/processing-min-max/"
+      ],
+      "date_verified": "2026-10-20",
+      "note": "Bending specification tables list the stocked thicknesses per material; N/A rows are not bendable."
+     },
+     "limitations": "A thickness missing from the table is reported NEEDS_REVIEW (the list may not be exhaustive), only N/A rows FAIL."
+    },
+    {
+     "id": "scs.bend_radius_fixed",
+     "type": "bend_radius_match",
+     "enabled": true,
+     "verified": true,
+     "severity": "WARNING",
+     "parameters": {
+      "spec": "bend_radius_mm",
+      "tolerance_mm": 0.0127
+     },
+     "rationale": "SendCutSend does not offer custom bend radii; radius and K-factor are set per material thickness, so parts must be designed with those values.",
+     "source": {
+      "url": "https://sendcutsend.com/bending-calculator/",
+      "also": [
+       "https://sendcutsend.com/guidelines/bending/",
+       "https://sendcutsend.com/materials/processing-min-max/"
+      ],
+      "date_verified": "2026-10-20",
+      "note": "Table \"Effective Bend Radius @ 90\u00b0\". Tolerance 0.0127 mm = half of the last published digit (0.001 in)."
+     },
+     "limitations": "Published as the effective radius at 90 degrees; other angles are not separately published."
+    },
+    {
+     "id": "scs.min_flange_length",
+     "type": "min_flange_length",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "spec": "min_flange_length_mm",
+      "measure": "apex"
+     },
+     "applies_to": {
+      "bend_angle_deg": {
+       "min": 89.0,
+       "max": 91.0
+      }
+     },
+     "source": {
+      "url": "https://sendcutsend.com/bending-calculator/",
+      "also": [
+       "https://sendcutsend.com/materials/processing-min-max/"
+      ],
+      "date_verified": "2026-10-20",
+      "note": "Table \"Min Formed Flange Length @ 90\u00b0\" (equals \"Min Flange Length (After Bend)\" in the min/max chart). The calculator page states formed flange lengths are measured from the apex of the bend."
+     },
+     "limitations": "Published for 90-degree bends only; flanges at other angles give NEEDS_REVIEW. Apex length is computed from the measured tangent length, bend radius and angle."
+    },
+    {
+     "id": "scs.feature_to_bend",
+     "type": "min_hole_bend_distance",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "spec": "die_width_mm",
+      "factor": 0.5,
+      "measure": "centerline"
+     },
+     "rationale": "Features inside the die width distort during bending (die lines); large cutouts in the die line can also shift the bend.",
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/bend-deformation/",
+      "also": [
+       "https://sendcutsend.com/bending-calculator/",
+       "https://sendcutsend.com/guidelines/bending/"
+      ],
+      "date_verified": "2026-10-20",
+      "note": "Keep cut features at least 1/2 the die width away from the centerline of each bend; die width per material/thickness from the bending specifications table."
+     },
+     "limitations": "Measured to the bend centerline; the add-in measures to the bend tangent line and bounds the offset, so borderline cases give NEEDS_REVIEW."
+    },
+    {
+     "id": "scs.min_hole_diameter",
+     "type": "min_hole_diameter",
+     "enabled": true,
+     "verified": true,
+     "severity": "WARNING",
+     "parameters": {
+      "min_ratio_to_thickness": 0.5
+     },
+     "rationale": "The pierce needs room; holes smaller than the minimum will distort, char, or fail to cut.",
+     "source": {
+      "url": "https://sendcutsend.com/guidelines/sheet-cutting/",
+      "also": [
+       "https://sendcutsend.com/guidelines/bending/"
+      ],
+      "date_verified": "2026-10-20",
+      "note": "Laser cutting: \"At least 50% of material thickness\" for holes and cutouts. Metals are routed to laser cutting."
+     },
+     "limitations": "The page states the exact minimum varies by material and thickness (listed on each material page, not retrieved); 50% is the general published value."
+    },
+    {
+     "id": "scs.max_flat_size",
+     "type": "max_part_dimensions",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "spec": "max_flat_size_mm"
+     },
+     "source": {
+      "url": "https://sendcutsend.com/materials/processing-min-max/",
+      "also": [
+       "https://sendcutsend.com/guidelines/bending/"
+      ],
+      "date_verified": "2026-10-20",
+      "note": "Min/max part sizes for bending: Max Flat Part Size per material and thickness."
+     },
+     "limitations": "Needs the flat pattern. Flat size comes from the flat pattern's axis-aligned bounding box."
+    },
+    {
+     "id": "scs.min_flat_size",
+     "type": "min_part_dimensions",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "spec": "min_flat_size_mm"
+     },
+     "source": {
+      "url": "https://sendcutsend.com/materials/processing-min-max/",
+      "date_verified": "2026-10-20",
+      "note": "Min Flat Part Size per material and thickness."
+     },
+     "limitations": "Needs the flat pattern."
+    },
+    {
+     "id": "scs.max_bend_length",
+     "type": "max_bend_length",
+     "enabled": true,
+     "verified": true,
+     "severity": "ERROR",
+     "parameters": {
+      "spec": "max_bend_length_mm"
+     },
+     "source": {
+      "url": "https://sendcutsend.com/materials/processing-min-max/",
+      "date_verified": "2026-10-20",
+      "note": "Max Bend Length per material and thickness."
+     }
+    },
+    {
+     "id": "scs.min_hole_edge_distance",
+     "type": "min_hole_edge_distance",
+     "enabled": false,
+     "verified": false,
+     "severity": "ERROR",
+     "parameters": {},
+     "limitations": "No hole-to-edge distance is published in the retrieved SendCutSend pages. Not entered."
+    }
+   ]
+  }
+ ]
 }

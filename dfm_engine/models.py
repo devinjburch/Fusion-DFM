@@ -34,20 +34,53 @@ class Hole:
     dist_to_bend_mm: Optional[float] = None      # hole boundary -> nearest bend tangent line
     has_adjacent_bend: Optional[bool] = None     # False: its face has no bend (rule N/A); None: unknown
     ref: Optional[GeometryRef] = None
+    # upper bound of (tangent line -> bend centerline) on the adjacent bend, mm: (R_inner + t) * angle / 2
+    bend_zone_max_mm: Optional[float] = None
+
+    @property
+    def kind(self) -> str:
+        return "hole"
+
+    @property
+    def min_dimension_mm(self) -> float:
+        return self.diameter_mm
+
+
+@dataclass
+class Cutout:
+    """Non-circular opening (slot, rectangle, irregular) in a sheet face."""
+    cutout_kind: str                              # "slot" | "rect" | "irregular" | "unknown"
+    min_dimension_mm: Optional[float] = None      # slot width / smallest rectangle side / None if unknown
+    length_mm: Optional[float] = None
+    position_mm: Optional[tuple] = None
+    dist_to_edge_mm: Optional[float] = None
+    dist_to_bend_mm: Optional[float] = None
+    has_adjacent_bend: Optional[bool] = None
+    bend_zone_max_mm: Optional[float] = None
+    certain: bool = True                          # False -> classification uncertain: rules give NEEDS_REVIEW
+    uncertainty_reason: str = ""
+    ref: Optional[GeometryRef] = None
+
+    @property
+    def kind(self) -> str:
+        return self.cutout_kind
 
 
 @dataclass
 class Bend:
     inner_radius_mm: Optional[float] = None
     angle_deg: Optional[float] = None
+    length_mm: Optional[float] = None
     ref: Optional[GeometryRef] = None
 
 
 @dataclass
 class Flange:
-    length_mm: float
-    is_terminal: bool = True   # True only for a free flange (one bend on one side)
+    length_mm: float                      # on the flange face, from the bend tangent line to the far edge
+    is_terminal: bool = True              # True only for a free flange (one bend on one side)
     ref: Optional[GeometryRef] = None
+    length_apex_mm: Optional[float] = None    # from the bend apex (virtual sharp of the outer faces); needs bend angle
+    bend_angle_deg: Optional[float] = None
 
 
 @dataclass
@@ -59,9 +92,12 @@ class PartModel:
     flat_dimensions_mm: Optional[tuple] = None    # flat-pattern (L, W); None if unavailable
     folded_dimensions_mm: Optional[tuple] = None  # axis-aligned bbox (X, Y, Z)
     holes: list = field(default_factory=list)
+    cutouts: list = field(default_factory=list)
     bends: list = field(default_factory=list)
     flanges: list = field(default_factory=list)
     body_ref: Optional[GeometryRef] = None
+    component_path: str = ""              # e.g. "Assembly1/Bracket:1" when part of an assembly
+    instance_count: int = 1
     # feature name -> reason it could not be extracted. Never invent values.
     unsupported: dict = field(default_factory=dict)
 
@@ -82,9 +118,16 @@ class RuleResult:
     date_verified: str = ""
     manufacturer: str = ""
     demo: bool = False
+    strength: str = "requirement"         # "requirement" (verified limit) | "advisory" (guidance only)
+    rationale: str = ""                   # why the requirement exists, only where the source states it
+    required_mm: Optional[float] = None   # numeric requirement (the string `required` is for display)
+    notes: str = ""                       # source qualifications / exceptions
+    corrections: list = field(default_factory=list)   # list[Correction]
+    feature_kind: str = ""
 
     def to_dict(self) -> dict:
         d = asdict(self)
+        d["corrections"] = [c.to_dict() if hasattr(c, "to_dict") else c for c in self.corrections]
         d["status"] = self.status.value
         d["severity"] = self.severity.value
         return d
@@ -101,6 +144,10 @@ class Report:
     results: list
     demo: bool = False
     notes: list = field(default_factory=list)
+    coverage_gaps: list = field(default_factory=list)   # rule categories with no verified, evaluated check
+    material_name: Optional[str] = None
+    thickness_mm: Optional[float] = None
+    thickness_match: str = ""
 
     def counts(self) -> dict:
         c = {s.value: 0 for s in Status}
@@ -112,5 +159,7 @@ class Report:
         return {"manufacturer_id": self.manufacturer_id, "manufacturer_name": self.manufacturer_name,
                 "process_id": self.process_id, "material_id": self.material_id,
                 "part_name": self.part_name, "overall": self.overall.value, "demo": self.demo,
-                "counts": self.counts(), "notes": self.notes,
+                "counts": self.counts(), "notes": self.notes, "coverage_gaps": self.coverage_gaps,
+                "material_name": self.material_name, "thickness_mm": self.thickness_mm,
+                "thickness_match": self.thickness_match,
                 "results": [r.to_dict() for r in self.results]}

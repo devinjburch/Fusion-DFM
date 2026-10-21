@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "manufacturer": {
+    "id": "sendcutsend",
+    "name": "SendCutSend",
+    "website": "https://sendcutsend.com"
+  },
+  "profile_status": "partially_verified",
+  "description": "Only values stated in the cited SendCutSend page text are enabled. Everything else is disabled.",
+  "processes": [
+    {
+      "id": "sheet_metal_bending",
+      "name": "Laser cutting + CNC bending (sheet metal)",
+      "materials": [
+        {
+          "id": "aluminum_5052_h32",
+          "name": "5052 H32 Aluminum",
+          "aliases": [
+            "5052",
+            "aluminum 5052",
+            "aluminium 5052"
+          ]
+        },
+        {
+          "id": "brass",
+          "name": "Brass",
+          "aliases": [
+            "brass"
+          ]
+        },
+        {
+          "id": "chromoly_4130",
+          "name": "4130 Chromoly",
+          "aliases": [
+            "4130",
+            "chromoly"
+          ]
+        },
+        {
+          "id": "copper",
+          "name": "Copper",
+          "aliases": [
+            "copper"
+          ]
+        },
+        {
+          "id": "galvanized_g90",
+          "name": "G90 Galvanized Steel",
+          "aliases": [
+            "g90",
+            "galvanized"
+          ]
+        },
+        {
+          "id": "mild_steel",
+          "name": "Mild Steel",
+          "aliases": [
+            "mild steel",
+            "cold rolled",
+            "low carbon"
+          ]
+        },
+        {
+          "id": "stainless_304",
+          "name": "304 Stainless Steel",
+          "aliases": [
+            "304"
+          ]
+        },
+        {
+          "id": "stainless_316",
+          "name": "316 Stainless Steel",
+          "aliases": [
+            "316"
+          ]
+        },
+        {
+          "id": "titanium_grade2",
+          "name": "Grade 2 Titanium",
+          "aliases": [
+            "titanium"
+          ]
+        }
+      ],
+      "notes": [
+        "U/C-channel: base must be at least 2x flange length (not yet modelled).",
+        "3/4-sided boxes without hardware: max flange length 5 in (not yet modelled).",
+        "Bend angle tolerance +/-1 deg up to 24 in (informational)."
+      ],
+      "rules": [
+        {
+          "id": "scs.thickness.aluminum_5052_h32",
+          "type": "thickness_range",
+          "enabled": true,
+          "verified": true,
+          "severity": "ERROR",
+          "applies_to": {
+            "materials": [
+              "aluminum_5052_h32"
+            ]
+          },
+          "parameters": {
+            "min_mm": 1.016,
+            "max_mm": 6.35
+          },
+          "source": {
+            "url": "https://sendcutsend.com/guidelines/bending/",
+            "date_verified": "2026-10-20",
+            "note": "Bending page lists 5052 H32 Aluminum: 8 thicknesses, 0.04\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+          },
+          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+        },
+        {
+          "id": "scs.thickness.brass",
+          "type": "thickness_range",
+          "enabled": true,
+          "verified": true,
+          "severity": "ERROR",
+          "applies_to": {
+            "materials": [
+              "brass"
+            ]
+          },
+          "parameters": {
+            "min_mm": 1.016,
+            "max_mm": 6.35
+          },
+          "source": {
+            "url": "https://sendcutsend.com/guidelines/bending/",
+            "date_verified": "2026-10-20",
+            "note": "Bending page lists Brass: 5 thicknesses, 0.04\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+          },
+          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+        },
+        {
+          "id": "scs.thickness.chromoly_4130",
+          "type": "thickness_range",
+          "enabled": true,
+          "verified": true,
+          "severity": "ERROR",
+          "applies_to": {
+            "materials": [
+              "chromoly_4130"
+            ]
+          },
+          "parameters": {
+            "min_mm": 1.27,
+            "max_mm": 6.35
+          },
+          "source": {
+            "url": "https://sendcutsend.com/guidelines/bending/",
+            "date_verified": "2026-10-20",
+            "note": "Bending page lists 4130 Chromoly: 5 thicknesses, 0.05\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+          },
+          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+        },
+        {
+          "id": "scs.thickness.copper",
+          "type": "thickness_range",
+          "enabled": true,
+          "verified": true,
+          "severity": "ERROR",
+          "applies_to": {
+            "materials": [
+              "copper"
+            ]
+          },
+          "parameters": {
+            "min_mm": 0.8128,
+            "max_mm": 6.35
+          },
+          "source": {
+            "url": "https://sendcutsend.com/guidelines/bending/",
+            "date_verified": "2026-10-20",
+            "note": "Bending page lists Copper: 6 thicknesses, 0.032\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+          },
+          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+        },
+        {
+          "id": "scs.thickness.galvanized_g90",
+          "type": "thickness_range",
+          "enabled": true,
+          "verified": true,
+          "severity": "ERROR",
+          "applies_to": {
+            "materials": [
+              "galvanized_g90"
+            ]
+          },
+          "parameters": {
+            "min_mm": 0.762,
+            "max_mm": 1.8796
+          },
+          "source": {
+            "url": "https://sendcutsend.com/guidelines/bending/",
+            "date_verified": "2026-10-20",
+            "note": "Bending page lists G90 Galvanized Steel: 4 thicknesses, 0.03\" - 0.074\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+          },
+          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+        },
+        {
+          "id": "scs.thickness.mild_steel",
+          "type": "thickness_range",
+          "enabled": true,
+          "verified": true,
+          "severity": "ERROR",
+          "applies_to": {
+            "materials": [
+              "mild_steel"
+            ]
+          },
+          "parameters": {
+            "min_mm": 0.762,
+            "max_mm": 6.35
+          },
+          "source": {
+            "url": "https://sendcutsend.com/guidelines/bending/",
+            "date_verified": "2026-10-20",
+            "note": "Bending page lists Mild Steel: 9 thicknesses, 0.03\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+          },
+          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+        },
+        {
+          "id": "scs.thickness.stainless_304",
+          "type": "thickness_range",
+          "enabled": true,
+          "verified": true,
+          "severity": "ERROR",
+          "applies_to": {
+            "materials": [
+              "stainless_304"
+            ]
+          },
+          "parameters": {
+            "min_mm": 0.762,
+            "max_mm": 6.35
+          },
+          "source": {
+            "url": "https://sendcutsend.com/guidelines/bending/",
+            "date_verified": "2026-10-20",
+            "note": "Bending page lists 304 Stainless Steel: 8 thicknesses, 0.03\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+          },
+          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+        },
+        {
+          "id": "scs.thickness.stainless_316",
+          "type": "thickness_range",
+          "enabled": true,
+          "verified": true,
+          "severity": "ERROR",
+          "applies_to": {
+            "materials": [
+              "stainless_316"
+            ]
+          },
+          "parameters": {
+            "min_mm": 1.524,
+            "max_mm": 6.35
+          },
+          "source": {
+            "url": "https://sendcutsend.com/guidelines/bending/",
+            "date_verified": "2026-10-20",
+            "note": "Bending page lists 316 Stainless Steel: 4 thicknesses, 0.06\" - 0.25\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+          },
+          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+        },
+        {
+          "id": "scs.thickness.titanium_grade2",
+          "type": "thickness_range",
+          "enabled": true,
+          "verified": true,
+          "severity": "ERROR",
+          "applies_to": {
+            "materials": [
+              "titanium_grade2"
+            ]
+          },
+          "parameters": {
+            "min_mm": 1.016,
+            "max_mm": 1.016
+          },
+          "source": {
+            "url": "https://sendcutsend.com/guidelines/bending/",
+            "date_verified": "2026-10-20",
+            "note": "Bending page lists Grade 2 Titanium: 1 thicknesses, 0.04\" - 0.04\". Only the range endpoints are published there; individual stocked gauges within the range are NOT checked."
+          },
+          "limitations": "Range check only; a thickness inside the range may still not be a stocked gauge. Verify on the Material Catalog."
+        },
+        {
+          "id": "scs.max_flat_size",
+          "type": "max_part_dimensions",
+          "enabled": true,
+          "verified": true,
+          "severity": "ERROR",
+          "parameters": {
+            "max_long_mm": 1117.6,
+            "max_short_mm": 762.0
+          },
+          "source": {
+            "url": "https://sendcutsend.com/guidelines/bending/",
+            "date_verified": "2026-10-20",
+            "note": "\"Max part size (flat) 30\" x 44\"\". Sizing limits apply to flat parts before bending."
+          },
+          "limitations": "General upper bound; material-specific limits on the Processing Min/Max Size Charts may be smaller. Needs the flat pattern."
+        },
+        {
+          "id": "scs.min_hole_diameter_laser",
+          "type": "min_hole_diameter",
+          "enabled": true,
+          "verified": true,
+          "severity": "WARNING",
+          "parameters": {
+            "min_ratio_to_thickness": 0.5
+          },
+          "source": {
+            "url": "https://sendcutsend.com/guidelines/bending/",
+            "date_verified": "2026-10-20",
+            "note": "Pre-flight checklist: \"All holes and cutouts are at least 50% material thickness for laser cut parts\"."
+          },
+          "limitations": "Applies to laser-cut parts only. Waterjet (0.070 in) and CNC-routed (0.125 in) limits differ and are not modelled."
+        },
+        {
+          "id": "scs.min_bend_radius",
+          "type": "min_bend_radius",
+          "enabled": false,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {},
+          "limitations": "SendCutSend sets bend radius per material and thickness in its Bending Specifications chart, which is not machine-readable from the page text retrieved. Not entered rather than guessed."
+        },
+        {
+          "id": "scs.min_flange_length",
+          "type": "min_flange_length",
+          "enabled": false,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {},
+          "limitations": "Minimum flange length depends on material and thickness (per-material spec chart in the Material Catalog); not retrieved."
+        },
+        {
+          "id": "scs.min_hole_edge_distance",
+          "type": "min_hole_edge_distance",
+          "enabled": false,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {},
+          "limitations": "No hole-to-edge value located in the retrieved pages."
+        },
+        {
+          "id": "scs.min_hole_bend_distance",
+          "type": "min_hole_bend_distance",
+          "enabled": false,
+          "verified": false,
+          "severity": "ERROR",
+          "parameters": {},
+          "limitations": "Hole-to-bend requirements depend on die width / thickness tables not retrieved."
+        }
+      ]
+    }
+  ]
+}
