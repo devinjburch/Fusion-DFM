@@ -43,6 +43,8 @@ class ManufacturerVerdict:
     demo: bool = False
     profile_status: str = ""
     summary: str = ""
+    research_status: str = ""
+    research_notes: str = ""
 
     def to_dict(self):
         return {"manufacturer_id": self.manufacturer_id, "manufacturer_name": self.manufacturer_name,
@@ -52,7 +54,8 @@ class ManufacturerVerdict:
                 "coverage_gap_labels": [CATEGORY_LABEL.get(c, c) for c in self.coverage_gaps],
                 "reasons": self.reasons, "unresolved_items": self.unresolved_items, "corrections": self.corrections,
                 "reports": [r.to_dict() for r in self.reports], "demo": self.demo,
-                "profile_status": self.profile_status, "summary": self.summary}
+                "profile_status": self.profile_status, "summary": self.summary,
+                "research_status": self.research_status, "research_notes": self.research_notes}
 
 
 @dataclass
@@ -116,6 +119,7 @@ def compare(parts, profiles: list, targets: Optional[list] = None) -> Comparison
             passed=sum(c["PASS"] for c in counts), not_checked=sum(c["SKIPPED"] for c in counts),
             coverage_gaps=sorted({g for r in reports for g in r.coverage_gaps}), reasons=reasons,
             unresolved_items=unresolved_items, corrections=corrections, reports=reports, demo=demo,
-            profile_status=prof["profile_status"], summary=extra or VERDICT_TEXT[verdict])
+            profile_status=prof["profile_status"], summary=extra or VERDICT_TEXT[verdict],
+            research_status=(prof.get("research") or {}).get("status", ""), research_notes=(prof.get("research") or {}).get("notes", ""))
         comp.entries.append(entry)
     return comp
