@@ -66,6 +66,7 @@ def test_smoke_runner_with_fake_app():
     st = {n: s for n, s, _ in res}
     assert st["active_design"] == "OK" and st["sheet_metal_body"] == "OK"
     assert st["thickness_rule"] == "OK" and st["extract_part"] == "OK" and st["evaluate_demo"] == "OK"
+    assert st["extract_all_parts"] == "OK" and st["compare_all"] == "OK" and st["export_report"] == "OK"
     assert "checks without failure" in report
 
 

@@ -9,69 +9,110 @@ header{padding:12px 14px;border-bottom:1px solid var(--bd);background:var(--card
 .row{display:flex;gap:8px;margin-bottom:6px}.row label{flex:1;font-size:11px;color:var(--mut)}
 select,button{width:100%;font:inherit;padding:6px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--fg)}
 button.primary{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:600;cursor:pointer;margin-top:4px}
-button.primary:disabled{opacity:.5}
+button.primary:disabled{opacity:.5}button.sec{cursor:pointer;margin-top:6px}
+.tabs{display:flex;gap:4px;margin-bottom:8px}.tabs button{width:auto;flex:1;cursor:pointer}.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.chk{display:flex;gap:6px;align-items:center;padding:3px 0;font-size:12px}.chk input{width:auto}
 main{padding:12px 14px}.banner{padding:10px 12px;border-radius:8px;border:1px solid var(--bd);background:var(--card);margin-bottom:10px;border-left:5px solid var(--mut)}
-.banner.FAIL{border-left-color:var(--fail)}.banner.PASS{border-left-color:var(--pass)}.banner.NEEDS_REVIEW{border-left-color:var(--warn)}
+.banner.FAIL,.banner.INCOMPATIBLE{border-left-color:var(--fail)}.banner.PASS,.banner.COMPATIBLE{border-left-color:var(--pass)}.banner.NEEDS_REVIEW,.banner.CONDITIONALLY_COMPATIBLE{border-left-color:var(--warn)}
 .banner b{font-size:15px}.demo{background:#fff3cd;color:#6b4e00;padding:6px 10px;border-radius:6px;margin-bottom:8px;font-weight:600}
 .err{background:#fdecea;color:#8a1c1c;padding:8px 10px;border-radius:6px;margin-bottom:8px}
 h2{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);margin:14px 0 6px}
 .issue{background:var(--card);border:1px solid var(--bd);border-left:4px solid var(--mut);border-radius:6px;padding:8px 10px;margin-bottom:6px;cursor:default}
 .issue.sel{outline:2px solid var(--acc)}.issue.click{cursor:pointer}
 .issue.ERROR{border-left-color:var(--fail)}.issue.WARNING{border-left-color:var(--warn)}.issue.INFO{border-left-color:var(--info)}
-.tag{font-size:10px;font-weight:700;padding:1px 6px;border-radius:9px;border:1px solid currentColor;margin-right:6px}
-.tag.FAIL{color:var(--fail)}.tag.NEEDS_REVIEW{color:var(--warn)}.tag.PASS{color:var(--pass)}.tag.SKIPPED{color:var(--mut)}
-.fix{margin-top:4px}.meta{color:var(--mut);font-size:11px;margin-top:4px}.meta a{color:var(--acc)}
+.tag{font-size:10px;font-weight:700;padding:1px 6px;border-radius:9px;border:1px solid currentColor;margin-right:6px;white-space:nowrap}
+.tag.FAIL,.tag.INCOMPATIBLE{color:var(--fail)}.tag.NEEDS_REVIEW,.tag.CONDITIONALLY_COMPATIBLE{color:var(--warn)}.tag.PASS,.tag.COMPATIBLE{color:var(--pass)}.tag.SKIPPED{color:var(--mut)}
+.fix{margin-top:4px}.why,.corr{margin-top:3px;color:var(--mut);font-size:12px}.meta{color:var(--mut);font-size:11px;margin-top:4px}.meta a{color:var(--acc)}
 details{margin-top:8px}summary{cursor:pointer;color:var(--mut)}table{border-collapse:collapse;width:100%}td{padding:2px 6px;border-bottom:1px solid var(--bd);vertical-align:top}
+.card{background:var(--card);border:1px solid var(--bd);border-left:5px solid var(--mut);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.card.INCOMPATIBLE{border-left-color:var(--fail)}.card.COMPATIBLE{border-left-color:var(--pass)}.card.NEEDS_REVIEW,.card.CONDITIONALLY_COMPATIBLE{border-left-color:var(--warn)}
+.card .head{display:flex;justify-content:space-between;align-items:center;gap:8px}.counts{color:var(--mut);font-size:12px;margin-top:2px}.gap{font-size:12px;color:var(--warn);margin-top:3px}
+.hidden{display:none}
 </style></head><body>
 <header><h1>Fusion-DFM · Check Manufacturability</h1>
- <div class="row"><label>Manufacturer<select id="mfr"></select></label></div>
- <div class="row"><label>Process<select id="proc"></select></label><label>Material<select id="mat"></select></label></div>
- <button class="primary" id="run" disabled>Analyze active design</button></header>
-<main id="out"><div class="meta">Select a manufacturer and analyze. Sheet metal bodies only (Phase 1).</div></main>
+ <div class="tabs"><button id="tabS" class="on">Single manufacturer</button><button id="tabC">Compare manufacturers</button></div>
+ <div id="single">
+  <div class="row"><label>Manufacturer<select id="mfr"></select></label></div>
+  <div class="row"><label>Process<select id="proc"></select></label><label>Material<select id="mat"></select></label></div>
+  <button class="primary" id="run" disabled>Analyze active design</button></div>
+ <div id="compare" class="hidden">
+  <div id="mfrList"></div>
+  <label class="chk"><input type="checkbox" id="allParts" checked> Analyze all visible sheet metal bodies (assemblies)</label>
+  <button class="primary" id="runC" disabled>Compare selected manufacturers</button></div>
+ <button class="sec hidden" id="export">Export report (HTML + CSV)</button><div class="meta hidden" id="exported"></div></header>
+<main id="out"><div class="meta">Select a manufacturer and analyze. Sheet metal bodies only.</div></main>
 <script>
-let PROFILES=[],last=null;
+let PROFILES=[],MODE='single';
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const send=(a,d)=>adsk.fusionSendData(a,JSON.stringify(d||{}));
+const VL={COMPATIBLE:'Compatible',CONDITIONALLY_COMPATIBLE:'Conditionally compatible',NEEDS_REVIEW:'Needs review',INCOMPATIBLE:'Incompatible'};
 function fill(sel,items,blank){sel.innerHTML=(blank?`<option value="">${blank}</option>`:'')+items.map(i=>`<option value="${esc(i.id)}">${esc(i.name)}</option>`).join('')}
 function cur(){return PROFILES.find(p=>p.id===$('mfr').value)}
 function onMfr(){const p=cur();if(!p)return;fill($('proc'),p.processes);onProc()}
 function onProc(){const p=cur();const pr=p&&p.processes.find(x=>x.id===$('proc').value);fill($('mat'),pr?pr.materials:[],'Auto-detect from Fusion material')}
 $('mfr').onchange=onMfr;$('proc').onchange=onProc;
+function setMode(m){MODE=m;$('single').classList.toggle('hidden',m!=='single');$('compare').classList.toggle('hidden',m!=='compare');
+ $('tabS').classList.toggle('on',m==='single');$('tabC').classList.toggle('on',m==='compare');$('export').classList.add('hidden');$('exported').classList.add('hidden')}
+$('tabS').onclick=()=>setMode('single');$('tabC').onclick=()=>setMode('compare');
 $('run').onclick=()=>{$('run').disabled=true;$('out').innerHTML='<div class="meta">Analyzing…</div>';
  send('run',{manufacturer_id:$('mfr').value,process_id:$('proc').value,material_id:$('mat').value})};
+$('runC').onclick=()=>{const ids=[...document.querySelectorAll('#mfrList input:checked')].map(x=>({id:x.value}));
+ if(!ids.length){$('out').innerHTML='<div class="err">Select at least one manufacturer.</div>';return}
+ $('runC').disabled=true;$('out').innerHTML='<div class="meta">Analyzing…</div>';send('compare',{manufacturers:ids,all_parts:$('allParts').checked})};
+$('export').onclick=()=>{$('exported').classList.remove('hidden');$('exported').textContent='Writing report…';send('export',{})};
 const sevOrder={ERROR:0,WARNING:1,INFO:2};
-function issue(r){const clickable=!!r.token;
+function issue(r,part){const clickable=!!r.token;
+ const corr=(r.corrections||[]).map(c=>`<div class="corr"><b>Proposed correction (${esc(c.confidence)}):</b> ${esc(c.summary)}${c.side_effects&&c.side_effects.length?' · side effects: '+esc(c.side_effects.join('; ')):''}</div>`).join('');
  return `<div class="issue ${r.severity}${clickable?' click':''}" data-tok="${esc(r.token||'')}">
- <span class="tag ${r.status}">${r.status.replace('_',' ')}</span><b>${esc(r.ref_label||r.rule_type.replace(/_/g,' '))}</b>
- <div>${esc(r.explanation)}</div>${r.recommendation&&r.status!=='PASS'?`<div class="fix"><b>Fix:</b> ${esc(r.recommendation)}</div>`:''}
+ <span class="tag ${r.status}">${r.status.replace('_',' ')}</span><b>${esc(part?part+' · ':'')}${esc(r.ref_label||r.rule_type.replace(/_/g,' '))}</b>${r.strength==='advisory'?' <span class="meta">[advisory]</span>':''}
+ <div>${esc(r.explanation)}</div>${r.recommendation&&r.status!=='PASS'?`<div class="fix"><b>${r.status==='FAIL'?'Fix':'Next step'}:</b> ${esc(r.recommendation)}</div>`:''}
+ ${r.rationale&&r.status==='FAIL'?`<div class="why"><b>Why:</b> ${esc(r.rationale)}</div>`:''}${corr}
  <div class="meta">${esc(r.rule_id)}${r.measured!=null?` · measured ${(+r.measured).toFixed(2)} ${esc(r.unit)}`:''}${r.required?` · required ${esc(r.required)}`:''}
  ${r.source_url?` · <a href="#" data-url="${esc(r.source_url)}">source</a> (verified ${esc(r.date_verified)})`:r.demo?' · demo rule':''}${clickable?' · click to highlight':''}</div></div>`}
-function render(d){last=d;const c=d.counts,p=d.part;let h='';
- if(d.demo)h+='<div class="demo">DEMONSTRATION PROFILE – fictional limits, not a real manufacturer.</div>';
- h+=`<div class="banner ${d.overall}"><b>${d.overall.replace('_',' ')}</b> · ${esc(d.manufacturer_name)}<div class="meta">${c.FAIL} failed · ${c.NEEDS_REVIEW} need review · ${c.PASS} passed · ${c.SKIPPED} rules not checked</div></div>`;
- d.notes.concat(p.warnings).forEach(n=>h+=`<div class="meta">⚠ ${esc(n)}</div>`);
- const groups=[['Failures',r=>r.status==='FAIL'],['Needs review',r=>r.status==='NEEDS_REVIEW']];
- groups.forEach(([t,f])=>{const rs=d.results.filter(f).sort((a,b)=>sevOrder[a.severity]-sevOrder[b.severity]);
-  if(rs.length){h+=`<h2>${t} (${rs.length})</h2>`+['ERROR','WARNING','INFO'].map(s=>rs.filter(r=>r.severity===s).map(issue).join('')).join('')}});
- const ps=d.results.filter(r=>r.status==='PASS'),sk=d.results.filter(r=>r.status==='SKIPPED');
- if(ps.length)h+=`<details><summary>Passed checks (${ps.length})</summary>${ps.map(issue).join('')}</details>`;
- if(sk.length)h+=`<details><summary>Rules not checked (${sk.length}) – no verified data</summary>${sk.map(issue).join('')}</details>`;
- const u=Object.entries(p.unsupported);
- h+=`<details><summary>Extracted geometry</summary><table>
- <tr><td>Part</td><td>${esc(p.name)}</td></tr><tr><td>Material</td><td>${esc(p.material||'unknown')}</td></tr>
+function geometry(p){const u=Object.entries(p.unsupported);
+ return `<details><summary>Extracted geometry – ${esc(p.name)}${p.instance_count>1?' ×'+p.instance_count:''}</summary><table>
+ <tr><td>Material</td><td>${esc(p.material||'unknown')}</td></tr>
  <tr><td>Thickness</td><td>${p.thickness_mm??'unsupported'} mm ${p.thickness_source?'('+esc(p.thickness_source)+')':''}</td></tr>
  <tr><td>Flat size</td><td>${p.flat_dimensions_mm?p.flat_dimensions_mm.join(' × ')+' mm':'unsupported'}</td></tr>
  <tr><td>Folded bbox</td><td>${p.folded_dimensions_mm?p.folded_dimensions_mm.join(' × ')+' mm':'—'}</td></tr>
- <tr><td>Features</td><td>${p.counts.holes} holes, ${p.counts.bends} bends, ${p.counts.flanges} flanges</td></tr>
- ${u.map(([k,v])=>`<tr><td>Unsupported: ${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table></details>`;
- $('out').innerHTML=h}
+ <tr><td>Features</td><td>${p.counts.holes} holes, ${p.counts.cutouts||0} cutouts, ${p.counts.bends} bends, ${p.counts.flanges} flanges</td></tr>
+ ${p.component_path?`<tr><td>Path</td><td>${esc(p.component_path)}</td></tr>`:''}
+ ${u.map(([k,v])=>`<tr><td>Unsupported: ${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table></details>`}
+function render(d){const c=d.counts,p=d.part;let h='';
+ if(d.demo)h+='<div class="demo">DEMONSTRATION PROFILE – fictional limits, not a real manufacturer.</div>';
+ h+=`<div class="banner ${d.overall}"><b>${d.overall.replace('_',' ')}</b> · ${esc(d.manufacturer_name)}<div class="meta">${c.FAIL} failed · ${c.NEEDS_REVIEW} need review · ${c.PASS} passed · ${c.SKIPPED} rules not checked</div>
+ ${d.coverage_gaps&&d.coverage_gaps.length?`<div class="gap">Not verified for this manufacturer: ${esc(d.coverage_gaps.join(', ').replace(/_/g,' '))}. A pass is not a full compatibility verdict.</div>`:''}</div>`;
+ d.notes.concat(p.warnings).forEach(n=>h+=`<div class="meta">⚠ ${esc(n)}</div>`);
+ [['Failures',r=>r.status==='FAIL'],['Needs review',r=>r.status==='NEEDS_REVIEW']].forEach(([t,f])=>{const rs=d.results.filter(f).sort((a,b)=>sevOrder[a.severity]-sevOrder[b.severity]);
+  if(rs.length)h+=`<h2>${t} (${rs.length})</h2>`+rs.map(r=>issue(r)).join('')});
+ const ps=d.results.filter(r=>r.status==='PASS'),sk=d.results.filter(r=>r.status==='SKIPPED');
+ if(ps.length)h+=`<details><summary>Passed checks (${ps.length})</summary>${ps.map(r=>issue(r)).join('')}</details>`;
+ if(sk.length)h+=`<details><summary>Rules not checked (${sk.length}) – no verified data</summary>${sk.map(r=>issue(r)).join('')}</details>`;
+ h+=geometry(p);$('out').innerHTML=h;$('export').classList.remove('hidden')}
+function renderCompare(d){const es=d.comparison.entries;let h='';
+ if(es.some(e=>e.demo))h+='<div class="demo">Includes the DEMONSTRATION profile – fictional limits.</div>';
+ const order={COMPATIBLE:0,CONDITIONALLY_COMPATIBLE:1,NEEDS_REVIEW:2,INCOMPATIBLE:3};
+ const sorted=[...es].sort((a,b)=>(a.demo-b.demo)||order[a.verdict]-order[b.verdict]||a.failures-b.failures||a.unresolved-b.unresolved);
+ const names=d.parts.map(p=>p.name);
+ h+=`<div class="meta">${names.length} part(s): ${esc(names.join(', '))}. Verdicts are never unconditional when data is missing.</div><h2>Manufacturers</h2>`;
+ sorted.forEach(e=>{h+=`<div class="card ${e.verdict}"><div class="head"><b>${esc(e.manufacturer_name)}${e.demo?' (demo)':''}</b><span class="tag ${e.verdict}">${VL[e.verdict]}</span></div>
+ <div class="counts">${e.failures} confirmed failure(s) · ${e.unresolved} unresolved · ${e.passed} passed · ${e.not_checked} not checked</div>
+ <div class="meta">${esc(e.summary)}</div>${e.coverage_gap_labels.length?`<div class="gap">Unverified: ${esc(e.coverage_gap_labels.join(', '))}</div>`:''}
+ ${e.reasons.length?`<details open><summary>Why not compatible (${e.reasons.length})</summary>${e.reports.flatMap(r=>r.results.filter(x=>x.status==='FAIL').map(x=>issue(x,names.length>1?r.part_name:''))).join('')}</details>`:''}
+ ${e.unresolved_items.length?`<details><summary>Unresolved checks (${e.unresolved_items.length})</summary>${e.reports.flatMap(r=>r.results.filter(x=>x.status==='NEEDS_REVIEW').map(x=>issue(x,names.length>1?r.part_name:''))).join('')}</details>`:''}
+ ${e.research_status==='blocked'?`<div class="meta">Data status: ${esc(e.research_notes)}</div>`:''}</div>`});
+ d.parts.forEach(p=>{h+=geometry(p)});$('out').innerHTML=h;$('export').classList.remove('hidden')}
 document.addEventListener('click',e=>{const a=e.target.closest('a[data-url]');if(a){e.preventDefault();send('open_url',{url:a.dataset.url});return}
+ const o=e.target.closest('a[data-file]');if(o){e.preventDefault();send('open_file',{path:o.dataset.file});return}
  const i=e.target.closest('.issue.click');if(i){document.querySelectorAll('.issue.sel').forEach(x=>x.classList.remove('sel'));i.classList.add('sel');send('highlight',{tokens:[i.dataset.tok]})}});
 window.fusionJavaScriptHandler={handle(action,data){const d=JSON.parse(data);
- if(action==='profiles'){PROFILES=d.profiles;fill($('mfr'),PROFILES);onMfr();$('run').disabled=!PROFILES.length;
+ if(action==='profiles'){PROFILES=d.profiles;fill($('mfr'),PROFILES);onMfr();$('run').disabled=!PROFILES.length;$('runC').disabled=!PROFILES.length;
+  $('mfrList').innerHTML=PROFILES.map(p=>`<label class="chk"><input type="checkbox" value="${esc(p.id)}" ${p.status==='demo'?'':'checked'}> ${esc(p.name)} <span class="meta">(${esc(p.status)})</span></label>`).join('');
   if(d.errors.length)$('out').innerHTML=d.errors.map(e=>`<div class="err">${esc(e)}</div>`).join('')}
  else if(action==='results'){$('run').disabled=false;render(d)}
- else if(action==='error'){$('run').disabled=false;$('out').innerHTML=`<div class="err">${esc(d.message)}</div>`}
+ else if(action==='compare_results'){$('runC').disabled=false;renderCompare(d)}
+ else if(action==='exported'){$('exported').classList.remove('hidden');$('exported').innerHTML=`Saved: <a href="#" data-file="${esc(d.paths.html)}">${esc(d.paths.html)}</a><br>${esc(d.paths.issues_csv)}<br>${esc(d.paths.comparison_csv)}`}
+ else if(action==='error'){$('run').disabled=false;$('runC').disabled=false;$('out').innerHTML=`<div class="err">${esc(d.message)}</div>`}
  return 'OK'}};
 (function ready(n){if(typeof adsk!=='undefined'&&adsk.fusionSendData){send('ready')}else if(n<50){setTimeout(()=>ready(n+1),100)}
  else{$('out').innerHTML='<div class="err">Fusion bridge (adsk.fusionSendData) not available in this page.</div>'}})(0);

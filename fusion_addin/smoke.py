@@ -108,6 +108,25 @@ def build_checks(app):
         json.dumps(d)
         return f"demo profile -> {d['overall']} {d['counts']}"
 
+    def extract_all_parts():
+        parts, warnings = extraction.extract_all(app)
+        state["parts"] = parts
+        return (f"{len(parts)} sheet metal part(s): " + "; ".join(
+            f"{p.name} x{p.instance_count} (holes={len(p.holes)}, cutouts={len(p.cutouts)}, bends={len(p.bends)}, flanges={len(p.flanges)})"
+            for p in parts) + (f"; warnings={warnings}" if warnings else ""))
+
+    def compare_all():
+        pl = bridge.compare_payload(state["parts"], [], {})
+        json.dumps(pl)
+        state["compare"] = pl
+        return "; ".join(f"{e['manufacturer_id']}={e['verdict']}(F{e['failures']}/U{e['unresolved']})" for e in pl["comparison"]["entries"])
+
+    def export_report():
+        import tempfile
+        res = bridge.export_payload(state["parts"], [], {}, "smoke", "", out_dir=tempfile.mkdtemp(prefix="fusiondfm_smoke_"))
+        missing = [k for k, v in res["paths"].items() if not os.path.getsize(v)]
+        return OK if not missing else (FAIL, f"empty report files: {missing}")
+
     def results_display():
         from .app_main import PALETTE_ID
         pal = ui.palettes.itemById(PALETTE_ID)
@@ -119,7 +138,8 @@ def build_checks(app):
     return [("fusion_api", fusion_api), ("command_defined", command_defined), ("toolbar_button", toolbar_button),
             ("active_design", active_design), ("sheet_metal_body", sheet_metal_body),
             ("thickness_rule", thickness_rule), ("thickness_geometry", thickness_geometry),
-            ("extract_part", extract), ("evaluate_demo", evaluate), ("results_display", results_display)]
+            ("extract_part", extract), ("evaluate_demo", evaluate), ("extract_all_parts", extract_all_parts),
+            ("compare_all", compare_all), ("export_report", export_report), ("results_display", results_display)]
 
 
 def run(app):

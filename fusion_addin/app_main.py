@@ -20,6 +20,7 @@ HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "inde
 
 _log = get_logger()
 _handlers = []          # event handlers must stay referenced or Fusion drops them
+_last = {}              # last analysis: {"parts": [...], "warnings": [...], "request": {...}} for report export
 _app = None
 _ui = None
 _panel_id = None
@@ -48,6 +49,12 @@ class _HtmlHandler(adsk.core.HTMLEventHandler):
                 _send("profiles", bridge.profiles_payload())
             elif args.action == "run":
                 self._run(data)
+            elif args.action == "compare":
+                self._compare(data)
+            elif args.action == "export":
+                self._export()
+            elif args.action == "open_file":
+                self._open_file(data.get("path", ""))
             elif args.action == "open_url":
                 url = data.get("url", "")
                 if url.startswith("https://"):
@@ -68,9 +75,55 @@ class _HtmlHandler(adsk.core.HTMLEventHandler):
             _send("error", {"message": str(e)})
             return
         payload = bridge.results_payload(part, warnings, req)
+        _last.update(parts=[part], warnings=warnings, request={"manufacturers": [{"id": req.get("manufacturer_id"),
+                     "process_id": req.get("process_id"), "material_id": req.get("material_id")}]})
         _log.info("analysis %s/%s -> %s %s", req.get("manufacturer_id"), req.get("process_id"),
                   payload["overall"], payload["counts"])
         _send("results", payload)
+
+
+def _model_name():
+    design = adsk.fusion.Design.cast(_app.activeProduct)
+    doc = _app.activeDocument.name if _app.activeDocument else ""
+    return design.rootComponent.name if design else "", doc
+
+
+def _compare(self, req):
+    try:
+        if req.get("all_parts", True):
+            parts, warnings = extraction.extract_all(_app)
+        else:
+            part, warnings = extraction.extract_part(_app)
+            parts = [part]
+    except extraction.ExtractionError as e:
+        _log.info("comparison not possible: %s", e)
+        _send("error", {"message": str(e)})
+        return
+    payload = bridge.compare_payload(parts, warnings, req)
+    _last.update(parts=parts, warnings=warnings, request=req)
+    _log.info("comparison of %d part(s): %s", len(parts),
+              [(e["manufacturer_id"], e["verdict"]) for e in payload["comparison"]["entries"]])
+    _send("compare_results", payload)
+
+
+def _export(self):
+    if not _last:
+        _send("error", {"message": "Run an analysis before exporting a report."})
+        return
+    name, doc = _model_name()
+    res = bridge.export_payload(_last["parts"], _last["warnings"], _last["request"], name, doc)
+    _log.info("report written: %s", res["paths"])
+    _send("exported", res)
+
+
+def _open_file(self, path):
+    reports = os.path.join(os.path.expanduser("~"), "FusionDFM", "reports")
+    full = os.path.abspath(path)
+    if full.startswith(os.path.abspath(reports) + os.sep) and full.endswith(".html") and os.path.exists(full):
+        webbrowser.open(pathlib.Path(full).as_uri())     # only files this add-in wrote
+
+
+_HtmlHandler._compare, _HtmlHandler._export, _HtmlHandler._open_file = _compare, _export, _open_file
 
 
 class _CmdCreated(adsk.core.CommandCreatedEventHandler):
