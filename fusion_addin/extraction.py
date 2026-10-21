@@ -127,7 +127,12 @@ def _thickness_from_rule(comp):
     rule = comp.activeSheetMetalRule
     if rule is None:
         return None
-    v = rule.thickness.value
+    try:
+        v = rule.thickness.value
+    except RuntimeError as e:
+        # Seen live while the flat pattern environment was active: "InternalValidationError : xlDesign".
+        log.warning("sheet metal rule thickness not readable (%s); falling back to geometry", e)
+        return None
     return v * CM if v and v > 0 else None
 
 

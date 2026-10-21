@@ -60,3 +60,7 @@ multi-body/occurrence parts, other materials and thicknesses.
 
 Install locations (official "Using Samples from GitHub" page): Windows `%appdata%\Autodesk\Autodesk Fusion\API\AddIns` and `...\Scripts`;
 macOS `~/Library/Application Support/Autodesk/Autodesk Fusion/API/AddIns`; the folder name must equal the `.manifest` name.
+
+## Live finding 2 (flat pattern environment)
+With the flat pattern environment active, `SheetMetalRuleValue.value` raised `RuntimeError: 2 : InternalValidationError : xlDesign`.
+Extraction now catches this, logs it, and falls back to geometry-derived thickness (with a warning); the smoke test reports WARN.

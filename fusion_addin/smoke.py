@@ -78,9 +78,13 @@ def build_checks(app):
         rule = comp.activeSheetMetalRule
         if rule is None:
             return WARN, "activeSheetMetalRule is null"
-        t = rule.thickness
-        state["t_rule_cm"] = t.value
-        return f"rule '{rule.name}': thickness {t.value * 10:.4f} mm (expression '{t.expression}')"
+        try:
+            t = rule.thickness
+            state["t_rule_cm"] = t.value
+            return f"rule '{rule.name}': thickness {t.value * 10:.4f} mm (expression '{t.expression}')"
+        except RuntimeError as e:
+            return WARN, (f"rule '{rule.name}' thickness not readable ({e}); happens in the flat pattern "
+                          "environment - extraction falls back to geometry. Finish/exit the flat pattern to test the rule.")
 
     def thickness_geometry():
         t = extraction._thickness_from_geometry(state["body"])

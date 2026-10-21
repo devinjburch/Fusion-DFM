@@ -73,3 +73,18 @@ def test_smoke_runner_isolates_failures():
     from fusion_addin import smoke  # may use fake adsk from earlier tests
     res = smoke.run_checks([("a", lambda: "fine"), ("b", lambda: 1 / 0), ("c", lambda: ("WARN", "meh"))])
     assert [s for _, s, _ in res] == ["OK", "FAIL", "WARN"]
+
+
+def test_unreadable_rule_thickness_falls_back_to_geometry():
+    body, _ = fa.build_l_bracket()
+    class Boom:
+        @property
+        def value(self): raise RuntimeError("2 : InternalValidationError : xlDesign")
+    body.parentComponent.activeSheetMetalRule.thickness = Boom()
+    app = fa.install(body)
+    from fusion_addin import extraction, smoke
+    part, warnings = extraction.extract_part(app)
+    assert part.thickness_source == "derived_from_geometry" and part.thickness_mm == pytest.approx(2.0)
+    assert any("derived from geometry" in w for w in warnings)
+    st = {n: s for n, s, _ in smoke.run(app)[0]}
+    assert st["thickness_rule"] == "WARN" and st["extract_part"] == "OK"
