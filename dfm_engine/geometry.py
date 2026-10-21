@@ -29,3 +29,27 @@ def point_polyline_distance(p, pts) -> float:
     if len(pts) == 1:
         return norm(sub(p, pts[0]))
     return min(point_segment_distance(p, pts[i], pts[i + 1]) for i in range(len(pts) - 1))
+
+
+def polyline_distance(a, b) -> float:
+    """Minimum distance between two 3D polylines (vertex-to-segment both ways; exact for non-crossing polylines)."""
+    best = float("inf")
+    for p in a:
+        best = min(best, point_polyline_distance(p, b))
+    for p in b:
+        best = min(best, point_polyline_distance(p, a))
+    return best
+
+
+def plane_basis(normal):
+    """Two unit vectors spanning the plane with the given normal."""
+    n = unit(normal)
+    ref = (1.0, 0.0, 0.0) if abs(n[0]) < 0.9 else (0.0, 1.0, 0.0)
+    u = unit(cross(n, ref))
+    v = cross(n, u)
+    return u, v
+
+
+def to_2d(p, origin, u, v):
+    d = sub(p, origin)
+    return (dot(d, u), dot(d, v))
