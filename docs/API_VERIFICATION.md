@@ -64,3 +64,8 @@ macOS `~/Library/Application Support/Autodesk/Autodesk Fusion/API/AddIns`; the f
 ## Live finding 2 (flat pattern environment)
 With the flat pattern environment active, `SheetMetalRuleValue.value` raised `RuntimeError: 2 : InternalValidationError : xlDesign`.
 Extraction now catches this, logs it, and falls back to geometry-derived thickness (with a warning); the smoke test reports WARN.
+
+## Live finding 3 (folded model after restart, 2026-10-20)
+Smoke test 10/10 OK with a flat pattern present: `Component.flatPattern.flatBody.boundingBox` gave flat size 192.51 x 50.8 mm (assumption 6 holds
+for this part). SendCutSend / Mild Steel analysis: PASS, 9 checks passed (thickness range, max flat size, 7 hole diameters), 4 rules not checked
+(bend radius, flange length, hole-edge, hole-bend: no verified manufacturer data). Visual count (7 holes, 3 bends) matches the model.
