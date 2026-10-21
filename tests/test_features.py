@@ -89,3 +89,12 @@ def test_dedupe_top_and_bottom_but_keep_separate_features():
     shifted = ((25, 5, 2.0), (0, 0, 1), "second")
     kept = dedupe_sheet_sides([top, bottom, other, shifted], T)
     assert [k[2] for k in kept] == ["top", "other leg", "second"]
+
+
+def test_circle_split_into_two_arcs_is_still_a_hole():
+    loop = LoopDesc([arc((0, 0), 5, 0, 180), arc((0, 0), 5, 180, 360)], N)
+    c = classify_loop(loop, T)
+    assert c.kind == "circle" and c.min_dimension_mm == pytest.approx(10) and to_cutout(c, loop) is None
+    # two arcs of different radii are not a circle
+    odd = LoopDesc([arc((0, 0), 5, 0, 180), arc((0, 0), 4, 180, 360)], N)
+    assert classify_loop(odd, T).kind == "irregular"

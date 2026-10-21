@@ -98,6 +98,12 @@ def classify_loop(loop: LoopDesc, thickness_mm: Optional[float]) -> LoopClass:
         return LoopClass("circle", 2 * loop.edges[0].radius_mm, 2 * loop.edges[0].radius_mm, cx, through is not False and through is True,
                          "" if through else "through-cut not confirmed", through)
 
+    # a circle split into arcs (e.g. by a seam): equal radii, sweeps summing to 360 degrees -> still a hole
+    if arcs and len(arcs) == len(loop.edges) and all(a.radius_mm and a.sweep_deg for a in arcs):
+        if all(_close(a.radius_mm, arcs[0].radius_mm) for a in arcs) and abs(sum(a.sweep_deg for a in arcs) - 360) <= ANG * 2:
+            d = 2 * arcs[0].radius_mm
+            return LoopClass("circle", d, d, cx, through is True, "" if through else "through-cut not confirmed", through)
+
     if "other" in kinds:
         return LoopClass("irregular", None, None, cx, False, "outline contains non-line/arc edges (spline/ellipse); narrowest width not computed", through)
 

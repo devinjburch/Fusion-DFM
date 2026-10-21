@@ -1,6 +1,6 @@
 """Multi-manufacturer comparison. Never returns an unconditional verdict when information is missing."""
 from __future__ import annotations
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Optional
 from .engine import evaluate, CATEGORY_LABEL
 from .models import PartModel, Report, Status
@@ -23,6 +23,7 @@ class Target:
     manufacturer_id: str
     process_id: Optional[str] = None     # default: first process in the profile
     material_id: Optional[str] = None    # default: auto-detect from the part's material
+    material_name: Optional[str] = None  # user-chosen material name, matched against each profile's aliases
 
 
 @dataclass
@@ -98,7 +99,8 @@ def compare(parts, profiles: list, targets: Optional[list] = None) -> Comparison
         if prof is None:
             raise KeyError(f"unknown manufacturer {t.manufacturer_id!r}")
         pid = t.process_id or prof["processes"][0]["id"]
-        reports = [evaluate(p, prof, pid, t.material_id) for p in parts]
+        eval_parts = [replace(p, material_name=t.material_name) if t.material_name else p for p in parts]
+        reports = [evaluate(p, prof, pid, t.material_id) for p in eval_parts]
         demo = prof["profile_status"] == "demo"
         verdict, extra = _verdict(reports, demo)
         reasons, unresolved_items, corrections = [], [], []

@@ -37,6 +37,7 @@ details{margin-top:8px}summary{cursor:pointer;color:var(--mut)}table{border-coll
   <button class="primary" id="run" disabled>Analyze active design</button></div>
  <div id="compare" class="hidden">
   <div id="mfrList"></div>
+  <div class="row"><label>Material (Fusion's own name is often too generic to match)<select id="cmpMat"></select></label></div>
   <label class="chk"><input type="checkbox" id="allParts" checked> Analyze all visible sheet metal bodies (assemblies)</label>
   <button class="primary" id="runC" disabled>Compare selected manufacturers</button></div>
  <button class="sec hidden" id="export">Export report (HTML + CSV)</button><div class="meta hidden" id="exported"></div></header>
@@ -58,7 +59,7 @@ $('run').onclick=()=>{$('run').disabled=true;$('out').innerHTML='<div class="met
  send('run',{manufacturer_id:$('mfr').value,process_id:$('proc').value,material_id:$('mat').value})};
 $('runC').onclick=()=>{const ids=[...document.querySelectorAll('#mfrList input:checked')].map(x=>({id:x.value}));
  if(!ids.length){$('out').innerHTML='<div class="err">Select at least one manufacturer.</div>';return}
- $('runC').disabled=true;$('out').innerHTML='<div class="meta">Analyzing…</div>';send('compare',{manufacturers:ids,all_parts:$('allParts').checked})};
+ $('runC').disabled=true;$('out').innerHTML='<div class="meta">Analyzing…</div>';send('compare',{manufacturers:ids,all_parts:$('allParts').checked,material_name:$('cmpMat').value})};
 $('export').onclick=()=>{$('exported').classList.remove('hidden');$('exported').textContent='Writing report…';send('export',{})};
 const sevOrder={ERROR:0,WARNING:1,INFO:2};
 function issue(r,part){const clickable=!!r.token;
@@ -106,7 +107,7 @@ document.addEventListener('click',e=>{const a=e.target.closest('a[data-url]');if
  const o=e.target.closest('a[data-file]');if(o){e.preventDefault();send('open_file',{path:o.dataset.file});return}
  const i=e.target.closest('.issue.click');if(i){document.querySelectorAll('.issue.sel').forEach(x=>x.classList.remove('sel'));i.classList.add('sel');send('highlight',{tokens:[i.dataset.tok]})}});
 window.fusionJavaScriptHandler={handle(action,data){const d=JSON.parse(data);
- if(action==='profiles'){PROFILES=d.profiles;fill($('mfr'),PROFILES);onMfr();$('run').disabled=!PROFILES.length;$('runC').disabled=!PROFILES.length;
+ if(action==='profiles'){PROFILES=d.profiles;$('cmpMat').innerHTML='<option value="">Auto-detect from Fusion material</option>'+(d.material_names||[]).map(n=>`<option>${esc(n)}</option>`).join('');fill($('mfr'),PROFILES);onMfr();$('run').disabled=!PROFILES.length;$('runC').disabled=!PROFILES.length;
   $('mfrList').innerHTML=PROFILES.map(p=>`<label class="chk"><input type="checkbox" value="${esc(p.id)}" ${p.status==='demo'?'':'checked'}> ${esc(p.name)} <span class="meta">(${esc(p.status)})</span></label>`).join('');
   if(d.errors.length)$('out').innerHTML=d.errors.map(e=>`<div class="err">${esc(e)}</div>`).join('')}
  else if(action==='results'){$('run').disabled=false;render(d)}

@@ -75,3 +75,20 @@ def test_targets_select_process_and_material():
 def test_to_dict_is_json_serialisable():
     import json
     json.dumps(compare(mild(), PROFILES).to_dict())
+
+
+def test_material_override_resolves_generic_fusion_names():
+    p = mild(material_name="Steel")                      # Fusion's generic library name: does not match
+    auto = entry(compare(p, PROFILES), "sendcutsend")
+    assert auto.reports[0].material_id is None and auto.unresolved >= 1
+    chosen = entry(compare(p, PROFILES, [Target("sendcutsend", material_name="Mild Steel")]), "sendcutsend")
+    assert chosen.reports[0].material_id == "mild_steel" and chosen.verdict in (CONDITIONAL, INCOMPATIBLE, COMPATIBLE)
+    # the caller's part is not modified
+    assert p.material_name == "Steel"
+
+
+def test_bridge_compare_payload_material_name_and_list():
+    from fusion_addin import bridge
+    pl = bridge.compare_payload([mild(material_name="Steel")], [], {"material_name": "Mild Steel", "manufacturers": [{"id": "sendcutsend"}]})
+    assert pl["comparison"]["entries"][0]["reports"][0]["material_id"] == "mild_steel"
+    assert "Mild Steel" in bridge.profiles_payload()["material_names"]

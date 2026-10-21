@@ -16,7 +16,9 @@ def profiles_payload(directory=None):
                     "processes": [{"id": pr["id"], "name": pr.get("name", pr["id"]),
                                    "materials": [{"id": m["id"], "name": m["name"]} for m in pr.get("materials", [])]}
                                   for pr in p["processes"]]})
-    return {"profiles": out, "errors": errors}
+    names = sorted({m["name"] for p in profiles if p["profile_status"] != "demo"
+                    for pr in p["processes"] for m in pr.get("materials", [])})
+    return {"profiles": out, "errors": errors, "material_names": names}
 
 
 def _flatten_report(d):
@@ -32,7 +34,8 @@ def compare_payload(parts, warnings, request, directory=None):
     """request: {"manufacturers": [{"id", "process_id"?, "material_id"?}, ...]} (default: every profile)."""
     profiles, _ = list_profiles(directory) if directory else list_profiles()
     wanted = request.get("manufacturers") or [{"id": p["manufacturer"]["id"]} for p in profiles]
-    targets = [Target(w["id"], w.get("process_id") or None, w.get("material_id") or None) for w in wanted]
+    name = request.get("material_name") or None
+    targets = [Target(w["id"], w.get("process_id") or None, w.get("material_id") or None, name) for w in wanted]
     comp = compare(parts, profiles, targets).to_dict()
     for e in comp["entries"]:
         for rep in e["reports"]:
