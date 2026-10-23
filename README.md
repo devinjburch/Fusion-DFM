@@ -15,7 +15,7 @@ profiles (SendCutSend, PCBWay, Xometry, plus a fictional DEMO profile).
 | `ai_assistant/` | Redesign workflow architecture (schemas, approval state machine, mock CAD adapter); no AI, no CAD writes |
 | `smoke_test/` | Fusion script that checks toolbar, design access, thickness extraction, results display |
 | `tests/` | Automated tests (`pip install -r requirements-dev.txt && pytest`) |
-| `docs/` | [Install](docs/INSTALL.md) · [First run](docs/FIRST_RUN.md) · [API verification](docs/API_VERIFICATION.md) · [Architecture](docs/ARCHITECTURE.md) · [Profiles](docs/PROFILES.md) · [Manufacturers](docs/MANUFACTURERS.md) · [AI architecture](docs/AI_ARCHITECTURE.md) · [Progress](docs/PROGRESS.md) · [Limitations](docs/LIMITATIONS.md) · [Testing](docs/TESTING.md) |
+| `docs/` | [Install](docs/INSTALL.md) · [First run](docs/FIRST_RUN.md) · [Field testing](docs/FIELD_TESTING.md) · [API verification](docs/API_VERIFICATION.md) · [Architecture](docs/ARCHITECTURE.md) · [Profiles](docs/PROFILES.md) · [Manufacturers](docs/MANUFACTURERS.md) · [AI architecture](docs/AI_ARCHITECTURE.md) · [Progress](docs/PROGRESS.md) · [Limitations](docs/LIMITATIONS.md) · [Testing](docs/TESTING.md) |
 
 Quick start: `python scripts/install.py`, then run **FusionDFM** from Fusion's Scripts and Add-Ins dialog; click
 **Check Manufacturability** (Design workspace → Utilities).

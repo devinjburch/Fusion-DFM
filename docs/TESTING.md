@@ -23,3 +23,5 @@ Install per [INSTALL.md](INSTALL.md) (re-run `python scripts\install.py`, restar
 5. **Assembly**: put two sheet metal parts (one inserted twice) in an assembly → compare with *Analyze all visible sheet metal bodies*: expect one entry per distinct body, `×2` for the repeated one.
 6. **Export**: click *Export report (HTML + CSV)* → files in `C:\\Users\\<you>\\FusionDFM\\reports\\`; open the HTML link: check comparison table, sources, limitations section.
 7. Logs: `~/FusionDFM/logs/fusion_dfm.log` records face census, classification and ignored loops; send it with any surprise.
+
+8. Package the results: `python scripts\field_report.py --run-tests` and commit the file (see [FIELD_TESTING.md](FIELD_TESTING.md)).
