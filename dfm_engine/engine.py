@@ -87,7 +87,37 @@ def _overall(results) -> Status:
         return Status.FAIL
     if Status.NEEDS_REVIEW in s:
         return Status.NEEDS_REVIEW
+    if Status.WARNING in s:
+        return Status.WARNING          # passes, but with warnings that must be shown
     return Status.PASS if Status.PASS in s else Status.NEEDS_REVIEW
+
+
+# short, rule-specific headings: (confirmed violation, could not be confirmed, ok)
+PHRASES = {
+    "thickness_range": ("thickness outside supported range", "thickness not confirmed as supported", "thickness supported"),
+    "thickness_in_stock": ("not a stocked thickness", "not confirmed as a stocked thickness", "stocked thickness"),
+    "min_bend_radius": ("bend radius too small", "bend radius not confirmed", "bend radius ok"),
+    "bend_radius_match": ("bend radius differs from the fixed radius", "bend radius not confirmed", "bend radius matches"),
+    "min_flange_length": ("flange too short", "flange length not confirmed", "flange length ok"),
+    "min_hole_edge_distance": ("too close to edge", "may be too close to edge", "edge distance ok"),
+    "min_hole_bend_distance": ("too close to bend", "may be too close to bend", "bend distance ok"),
+    "min_hole_diameter": ("too small", "size not confirmed", "size ok"),
+    "max_bend_length": ("bend too long", "bend length not confirmed", "bend length ok"),
+    "max_part_dimensions": ("flat part too large", "flat size not confirmed", "flat size ok"),
+    "min_part_dimensions": ("flat part too small", "flat size not confirmed", "flat size ok"),
+}
+DEFAULT_LABEL = {"thickness_range": "Sheet thickness", "thickness_in_stock": "Sheet thickness",
+                 "max_part_dimensions": "Flat size", "min_part_dimensions": "Flat size"}
+
+
+def make_title(r: RuleResult, original: Status) -> str:
+    if r.status == Status.SKIPPED:
+        return f"{r.rule_id}: not checked"
+    label = (r.geometry_ref.label if r.geometry_ref and r.geometry_ref.label else "") or r.feature_label \
+        or DEFAULT_LABEL.get(r.rule_type, "Part")
+    bad, maybe, ok = PHRASES.get(r.rule_type, ("requirement not met", "could not be checked", "ok"))
+    phrase = ok if r.status == Status.PASS else (bad if original == Status.FAIL else maybe)
+    return f"{label}: {phrase}"
 
 
 def _coverage_gaps(process, material_id, demo):
@@ -114,7 +144,7 @@ class _Ctx:
 
     # ------------------------------------------------------------ result construction
     def _mk(self, status, explanation, rec="", measured=None, required=None, ref=None,
-            severity=None, required_mm=None, corrections=None, feature_kind="") -> RuleResult:
+            severity=None, required_mm=None, corrections=None, feature_kind="", label="") -> RuleResult:
         rule = self.rule
         src = rule.get("source") or {}
         if severity is None:
@@ -127,7 +157,7 @@ class _Ctx:
             manufacturer=self.mfr, demo=self.profile["profile_status"] == "demo",
             strength=rule.get("strength", "requirement"), rationale=rule.get("rationale", ""),
             required_mm=required_mm, notes=rule.get("notes", ""), corrections=corrections or [],
-            feature_kind=feature_kind)
+            feature_kind=feature_kind, feature_label=label)
 
     def _review(self, why, ref=None, kind=""):
         return self._mk(Status.NEEDS_REVIEW, f"Cannot evaluate: {why}",
@@ -136,6 +166,14 @@ class _Ctx:
 
     # ------------------------------------------------------------ dispatch
     def run(self, rule):
+        out = self._run(rule)
+        for r in out:                      # every result gets a heading, including skipped / early-return ones
+            if not r.title:
+                r.title = make_title(r, r.status)
+            r.consequence = rule.get("consequence", "blocking")
+        return out
+
+    def _run(self, rule):
         self.rule = rule
         if not rule["enabled"] or (not rule["verified"] and self.profile["profile_status"] != "demo"):
             why = rule.get("limitations") or "No verified manufacturer data for this rule."
@@ -155,7 +193,24 @@ class _Ctx:
             if t < tr.get("min", 0) - EPS or t > tr.get("max", float("inf")) + EPS:
                 return []
         out = getattr(self, "_" + rule["type"])(rule, rule.get("parameters") or {})
-        return [self._apply_strength(r) for r in out]
+        original = [r.status for r in out]
+        out = [self._apply_strength(r) for r in out]
+        if rule.get("consequence") == "warning" and rule.get("strength", "requirement") == "requirement":
+            out = [self._apply_consequence(r) for r in out]
+        for r, o in zip(out, original):
+            r.consequence = rule.get("consequence", "blocking")
+            r.title = make_title(r, o)
+        return out
+
+    @staticmethod
+    def _apply_consequence(r):
+        """Non-blocking rule: a confirmed violation OR an unresolved check becomes a WARNING (never a pass)."""
+        if r.status in (Status.FAIL, Status.NEEDS_REVIEW):
+            r.confirmed = r.status == Status.FAIL
+            r.status, r.severity = Status.WARNING, Severity.WARNING
+            if not r.confirmed:
+                r.explanation = "Not confirmed (non-blocking rule): " + r.explanation
+        return r
 
     def _apply_strength(self, r):
         if r.strength == "advisory" and r.status == Status.FAIL:
@@ -245,12 +300,12 @@ class _Ctx:
             req_txt = self._req_text(cands)
             if verdict == "PASS":
                 out.append(self._mk(Status.PASS, f"{name} is {fmt_len(v)} (minimum {fmt_len(req)}){self._scope()}.",
-                                    measured=v, required=req_txt, ref=ref, required_mm=req, feature_kind=kind))
+                                    measured=v, required=req_txt, ref=ref, required_mm=req, feature_kind=kind, label=name))
             elif verdict == "REVIEW":
                 out.append(self._mk(Status.NEEDS_REVIEW,
                                     f"{name} is {fmt_len(v)}; manufacturer sources disagree on the minimum ({req_txt}).",
                                     "Resolve the conflicting manufacturer values or meet the larger one.",
-                                    measured=v, required=req_txt, ref=ref, required_mm=req, feature_kind=kind))
+                                    measured=v, required=req_txt, ref=ref, required_mm=req, feature_kind=kind, label=name))
             else:
                 delta = req - v
                 c = corr(name, it, v, req)
@@ -258,7 +313,7 @@ class _Ctx:
                                     f"{name} is {fmt_len(v)}; {self.mfr} requires at least {fmt_len(req)}{self._scope()}.",
                                     fix_fmt.format(req=fmt_len(req), delta=fmt_len(delta), name=name) + unit_note,
                                     measured=v, required=req_txt, ref=ref, required_mm=req,
-                                    corrections=[c] if c else [], feature_kind=kind))
+                                    corrections=[c] if c else [], feature_kind=kind, label=name))
         return out
 
     # ------------------------------------------------------------ rule implementations
@@ -343,11 +398,11 @@ class _Ctx:
             req_txt = "= " + " or ".join(f"{c:.3f} mm" for c in sorted(set(round(c, 4) for c in cands)))
             if all(hits):
                 out.append(self._mk(Status.PASS, f"Bend #{i} inner radius {fmt_len(v)} matches the manufacturer's fixed radius{self._scope()}.",
-                                    measured=v, required=req_txt, ref=b.ref, required_mm=cands[0]))
+                                    measured=v, required=req_txt, ref=b.ref, required_mm=cands[0], label=f"Bend #{i}"))
             elif any(hits):
                 out.append(self._mk(Status.NEEDS_REVIEW,
                                     f"Bend #{i} radius {fmt_len(v)} matches one of the manufacturer's conflicting published values ({req_txt}).",
-                                    "Ask the manufacturer which radius applies.", measured=v, required=req_txt, ref=b.ref))
+                                    "Ask the manufacturer which radius applies.", measured=v, required=req_txt, ref=b.ref, label=f"Bend #{i}"))
             else:
                 tgt = cands[0]
                 alts = sorted(set(round(c, 4) for c in cands) - {round(tgt, 4)})
@@ -359,7 +414,7 @@ class _Ctx:
                 out.append(self._mk(Status.FAIL,
                                     f"Bend #{i} inner radius is {fmt_len(v)}; {self.mfr} forms a fixed radius of {fmt_len(tgt)}{self._scope()} and does not offer custom bend radii.",
                                     f"Model the bend with an inner radius of {fmt_len(tgt)} (change of {fmt_len(tgt - v)}); otherwise the formed part will not match your model.",
-                                    measured=v, required=req_txt, ref=b.ref, required_mm=tgt, corrections=[c]))
+                                    measured=v, required=req_txt, ref=b.ref, required_mm=tgt, corrections=[c], label=f"Bend #{i}"))
         return out
 
     def _flange_items(self, rule):
@@ -369,7 +424,7 @@ class _Ctx:
         for i, f in enumerate(self.part.flanges, 1):
             if not f.is_terminal:
                 continue
-            items.append((f"Flange #{i}", f))
+            items.append((f.ref.label if f.ref and f.ref.label else f"Flange #{i}", f))
         return items, rng
 
     def _min_flange_length(self, rule, p):
@@ -410,8 +465,9 @@ class _Ctx:
 
     def _feature_items(self, rule):
         kinds = (rule.get("applies_to") or {}).get("feature_kinds")
-        items = [(f"Hole #{i}", h) for i, h in enumerate(self.part.holes, 1)]
-        items += [(f"{c.cutout_kind.capitalize()} cutout #{i}", c) for i, c in enumerate(self.part.cutouts, 1)]
+        lab = lambda f, default: f.ref.label if f.ref and f.ref.label else default      # prefer the CAD label (matches the UI)
+        items = [(lab(h, f"Hole #{i}"), h) for i, h in enumerate(self.part.holes, 1)]
+        items += [(lab(c, f"{c.cutout_kind.capitalize()} cutout #{i}"), c) for i, c in enumerate(self.part.cutouts, 1)]
         if kinds:
             items = [(n, f) for n, f in items if f.kind in kinds]
         return items
@@ -464,7 +520,7 @@ class _Ctx:
             if d >= hi_req - EPS:
                 out.append(self._mk(Status.PASS,
                                     f"{name} is at least {fmt_len(d)} from the bend tangent line, so its distance to the bend centerline is >= {fmt_len(hi_req)}{self._scope()}.",
-                                    measured=d, required=req_txt, ref=ref, required_mm=hi_req, feature_kind=kind))
+                                    measured=d, required=req_txt, ref=ref, required_mm=hi_req, feature_kind=kind, label=name))
             elif zone is not None and d + zone < lo_req - EPS:
                 short = hi_req - (d + zone)
                 c = Correction("move_feature", rule["id"], "distance_to_bend_centerline", "move_away", d + zone, hi_req,
@@ -473,13 +529,13 @@ class _Ctx:
                 out.append(self._mk(Status.FAIL,
                                     f"{name} is at most {fmt_len(d + zone)} from the bend centerline; {self.mfr} requires at least {fmt_len(hi_req)}{self._scope()} (cut features closer than half the die width distort when bent).",
                                     f"Move {name} at least {fmt_len(short)} further from the bend.",
-                                    measured=d + zone, required=req_txt, ref=ref, required_mm=hi_req, corrections=[c], feature_kind=kind))
+                                    measured=d + zone, required=req_txt, ref=ref, required_mm=hi_req, corrections=[c], feature_kind=kind, label=name))
             else:
                 bound = "unknown" if zone is None else fmt_len(d + zone)
                 out.append(self._mk(Status.NEEDS_REVIEW,
                                     f"{name}: distance to the bend tangent line is {fmt_len(d)}; the distance to the bend centerline (required >= {fmt_len(hi_req)}) lies between {fmt_len(d)} and {bound}, so compliance cannot be confirmed.",
                                     "Measure to the bend centerline on the flat pattern, or move the feature further from the bend.",
-                                    measured=d, required=req_txt, ref=ref, required_mm=hi_req, feature_kind=kind))
+                                    measured=d, required=req_txt, ref=ref, required_mm=hi_req, feature_kind=kind, label=name))
         return out
 
     def _max_bend_length(self, rule, p):
@@ -498,16 +554,16 @@ class _Ctx:
             req_txt = "<= " + " or ".join(f"{c:.1f} mm" for c in sorted(set(round(c, 2) for c in cands)))
             if v <= lo + EPS:
                 out.append(self._mk(Status.PASS, f"Bend #{i} length {fmt_len(v)} is within the maximum {fmt_len(lo)}{self._scope()}.",
-                                    measured=v, required=req_txt, ref=b.ref, required_mm=lo))
+                                    measured=v, required=req_txt, ref=b.ref, required_mm=lo, label=f"Bend #{i}"))
             elif v > hi + EPS:
                 c = Correction("resize_part", rule["id"], "bend_length", "decrease", v, lo,
                                f"Shorten bend #{i} to at most {fmt_len(lo)} or split it.", b.ref, "minimum")
                 out.append(self._mk(Status.FAIL, f"Bend #{i} is {fmt_len(v)} long; {self.mfr} allows at most {fmt_len(lo)}{self._scope()}.",
                                     f"Shorten the bend by at least {fmt_len(v - lo)} or split the part.", measured=v, required=req_txt,
-                                    ref=b.ref, required_mm=lo, corrections=[c]))
+                                    ref=b.ref, required_mm=lo, corrections=[c], label=f"Bend #{i}"))
             else:
                 out.append(self._mk(Status.NEEDS_REVIEW, f"Bend #{i} length {fmt_len(v)} lies between conflicting published maxima ({req_txt}).",
-                                    "Ask the manufacturer which maximum applies.", measured=v, required=req_txt, ref=b.ref))
+                                    "Ask the manufacturer which maximum applies.", measured=v, required=req_txt, ref=b.ref, label=f"Bend #{i}"))
         return out
 
     def _pair_candidates(self, p, kind):

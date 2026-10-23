@@ -2105,7 +2105,9 @@
      "type": "min_hole_bend_distance",
      "enabled": true,
      "verified": true,
-     "severity": "ERROR",
+     "severity": "WARNING",
+     "consequence": "warning",
+     "notes": "Non-blocking by design: SendCutSend says features in the die area \"are subject to distorting\" and shows a feature distortion caution area at checkout; it does not say the part is rejected. A violation (or an unresolved case) is reported as a WARNING, the verdict becomes \"conditionally compatible\", and the warning stays listed. Change \"consequence\" to \"blocking\" to make it fail the part.",
      "parameters": {
       "spec": "die_width_mm",
       "factor": 0.5,

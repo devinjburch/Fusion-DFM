@@ -18,3 +18,11 @@ user can pick a material in the palette.
 - **PCBWay, Xometry**: the build environment's network policy blocked these sites, so **no data was entered**; all rules disabled.
   To complete: open their official sheet-metal design guides, enter values with `source.url` + `date_verified`, set `enabled/verified`.
 - **demo**: fictional, flagged `demo` everywhere in the UI.
+
+
+## Rule consequence and the WARNING status (added after field round 5)
+`"consequence": "blocking"` (default) or `"warning"`. For a `warning` rule (requirement strength only) a confirmed violation *and* an unresolved check become the
+non-blocking status **WARNING** (severity WARNING; unresolved ones carry `confirmed: false` and the text "Not confirmed"). A WARNING never fails the part and never counts as a pass:
+the single-manufacturer overall status is `WARNING` ("pass with warnings") and the comparison verdict is *Conditionally compatible* with the warnings listed. A `warning` rule must justify
+itself in `notes` or `rationale` (validator-enforced). Material/thickness pre-checks (e.g. unmatched material) still give NEEDS_REVIEW. Set `"consequence": "blocking"` to restore failing behaviour.
+Every result also has a `title` such as "Hole 4: too close to bend" / "Hole 1: may be too close to bend" (unconfirmed).

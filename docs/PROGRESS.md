@@ -23,3 +23,10 @@ Branch `feature/phase2-manufacturing` (from `feature/phase1-mvp`; Phase 1 unchan
 ## Blockers
 - PCBWay / Xometry unreachable (proxy 403 / DNS failure on 2026-10-20); documented in MANUFACTURERS.md; not retried.
 - No Fusion runtime in the build environment.
+
+## Field-test changes (2026-10-23, from docs/field-reports)
+- [x] Hole/feature-near-bend (`scs.feature_to_bend`) is now a non-blocking WARNING (new `consequence` rule field, new WARNING status, "pass with warnings" / conditionally compatible)
+- [x] Rule-specific result titles ("Hole 4: too close to bend"), explanation text uses the same CAD labels as the titles
+- [x] `scripts/field_report.py` redaction: URL-encoded home path, doubled-backslash (repr) home path, design names in export file names and logs (case-insensitive)
+- [ ] Not changed: demo profile's `demo.hole_bend` stays blocking (fictional profile; Phase 1 behaviour preserved). Flip `consequence` there if you want parity.
+- [ ] Idea from round 5: disable the Export button while a write is in progress (two identical exports were written 2 s apart)

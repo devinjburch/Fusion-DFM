@@ -10,6 +10,7 @@ class Status(str, Enum):
     FAIL = "FAIL"
     NEEDS_REVIEW = "NEEDS_REVIEW"
     SKIPPED = "SKIPPED"  # rule disabled/unverified: NOT a pass, nothing was checked
+    WARNING = "WARNING"  # non-blocking rule (consequence "warning"): violation confirmed or not ruled out; never a pass
 
 
 class Severity(str, Enum):
@@ -124,6 +125,10 @@ class RuleResult:
     notes: str = ""                       # source qualifications / exceptions
     corrections: list = field(default_factory=list)   # list[Correction]
     feature_kind: str = ""
+    feature_label: str = ""               # e.g. "Hole #4" when the CAD reference has no label
+    title: str = ""                       # short rule-specific heading, e.g. "Hole 4: too close to bend"
+    consequence: str = "blocking"         # "blocking" | "warning" (from the rule)
+    confirmed: bool = True                # False for a WARNING that could not be confirmed (unresolved check)
 
     def to_dict(self) -> dict:
         d = asdict(self)

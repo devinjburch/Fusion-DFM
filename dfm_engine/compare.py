@@ -12,7 +12,7 @@ INCOMPATIBLE = "INCOMPATIBLE"
 _ORDER = {COMPATIBLE: 0, CONDITIONAL: 1, NEEDS_REVIEW: 2, INCOMPATIBLE: 3}
 VERDICT_TEXT = {
     COMPATIBLE: "All required checks ran and passed.",
-    CONDITIONAL: "No failures, but some requirement categories have no verified data, so full compatibility is not confirmed.",
+    CONDITIONAL: "No blocking failures, but there are warnings and/or requirement categories without verified data; review them before relying on this verdict.",
     NEEDS_REVIEW: "Some checks could not be resolved; compatibility cannot be confirmed or ruled out.",
     INCOMPATIBLE: "At least one verified requirement is not met.",
 }
@@ -35,9 +35,11 @@ class ManufacturerVerdict:
     failures: int
     unresolved: int
     passed: int
+    warnings: int
     not_checked: int
     coverage_gaps: list
     reasons: list                  # confirmed failures: dicts
+    warning_items: list            # non-blocking warnings: dicts
     unresolved_items: list         # dicts
     corrections: list              # Correction dicts for the failures
     reports: list                  # Report per part
@@ -50,10 +52,10 @@ class ManufacturerVerdict:
     def to_dict(self):
         return {"manufacturer_id": self.manufacturer_id, "manufacturer_name": self.manufacturer_name,
                 "process_id": self.process_id, "verdict": self.verdict, "verdict_text": VERDICT_TEXT[self.verdict],
-                "failures": self.failures, "unresolved": self.unresolved, "passed": self.passed,
+                "failures": self.failures, "unresolved": self.unresolved, "passed": self.passed, "warnings": self.warnings,
                 "not_checked": self.not_checked, "coverage_gaps": self.coverage_gaps,
                 "coverage_gap_labels": [CATEGORY_LABEL.get(c, c) for c in self.coverage_gaps],
-                "reasons": self.reasons, "unresolved_items": self.unresolved_items, "corrections": self.corrections,
+                "reasons": self.reasons, "warning_items": self.warning_items, "unresolved_items": self.unresolved_items, "corrections": self.corrections,
                 "reports": [r.to_dict() for r in self.reports], "demo": self.demo,
                 "profile_status": self.profile_status, "summary": self.summary,
                 "research_status": self.research_status, "research_notes": self.research_notes}
@@ -76,6 +78,7 @@ def _verdict(reports, demo):
     fails = sum(r.counts()["FAIL"] for r in reports)
     unresolved = sum(r.counts()["NEEDS_REVIEW"] for r in reports)
     passed = sum(r.counts()["PASS"] for r in reports)
+    warnings = sum(r.counts()["WARNING"] for r in reports)
     gaps = sorted({g for r in reports for g in r.coverage_gaps})
     if fails:
         return INCOMPATIBLE, ""
@@ -83,7 +86,7 @@ def _verdict(reports, demo):
         return NEEDS_REVIEW, ""
     if not passed:
         return NEEDS_REVIEW, "No verified check could be performed (no verified rules apply)."
-    if gaps:
+    if gaps or warnings:
         return CONDITIONAL, ""
     return COMPATIBLE, ""
 
@@ -103,10 +106,10 @@ def compare(parts, profiles: list, targets: Optional[list] = None) -> Comparison
         reports = [evaluate(p, prof, pid, t.material_id) for p in eval_parts]
         demo = prof["profile_status"] == "demo"
         verdict, extra = _verdict(reports, demo)
-        reasons, unresolved_items, corrections = [], [], []
+        reasons, unresolved_items, warning_items, corrections = [], [], [], []
         for part, rep in zip(parts, reports):
             for r in rep.results:
-                item = {"part": part.name, "rule_id": r.rule_id, "explanation": r.explanation,
+                item = {"part": part.name, "rule_id": r.rule_id, "title": r.title, "explanation": r.explanation,
                         "recommendation": r.recommendation, "token": r.geometry_ref.token if r.geometry_ref else None,
                         "source_url": r.source_url, "strength": r.strength}
                 if r.status == Status.FAIL:
@@ -114,12 +117,15 @@ def compare(parts, profiles: list, targets: Optional[list] = None) -> Comparison
                     corrections += [dict(c.to_dict(), part=part.name) for c in r.corrections]
                 elif r.status == Status.NEEDS_REVIEW:
                     unresolved_items.append(item)
+                elif r.status == Status.WARNING:
+                    warning_items.append(dict(item, confirmed=r.confirmed))
+                    corrections += [dict(c.to_dict(), part=part.name, warning=True) for c in r.corrections]
         counts = [r.counts() for r in reports]
         entry = ManufacturerVerdict(
             manufacturer_id=t.manufacturer_id, manufacturer_name=prof["manufacturer"]["name"], process_id=pid,
             verdict=verdict, failures=sum(c["FAIL"] for c in counts), unresolved=sum(c["NEEDS_REVIEW"] for c in counts),
-            passed=sum(c["PASS"] for c in counts), not_checked=sum(c["SKIPPED"] for c in counts),
-            coverage_gaps=sorted({g for r in reports for g in r.coverage_gaps}), reasons=reasons,
+            passed=sum(c["PASS"] for c in counts), warnings=sum(c["WARNING"] for c in counts), not_checked=sum(c["SKIPPED"] for c in counts),
+            coverage_gaps=sorted({g for r in reports for g in r.coverage_gaps}), reasons=reasons, warning_items=warning_items,
             unresolved_items=unresolved_items, corrections=corrections, reports=reports, demo=demo,
             profile_status=prof["profile_status"], summary=extra or VERDICT_TEXT[verdict],
             research_status=(prof.get("research") or {}).get("status", ""), research_notes=(prof.get("research") or {}).get("notes", ""))

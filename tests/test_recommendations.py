@@ -23,7 +23,8 @@ def base(**kw):
 
 
 def fails(rep, rid):
-    return [r for r in rep.results if r.rule_id == rid and r.status == Status.FAIL]
+    """Confirmed violations: FAIL, or a confirmed WARNING (non-blocking rule)."""
+    return [r for r in rep.results if r.rule_id == rid and (r.status == Status.FAIL or (r.status == Status.WARNING and r.confirmed))]
 
 
 def test_flange_message_matches_the_requested_style():
@@ -82,7 +83,7 @@ def test_every_failure_in_a_busy_part_carries_complete_information():
                 cutouts=[Cutout("slot", min_dimension_mm=0.1, dist_to_edge_mm=1, ref=GeometryRef("cutout", "c1", "Slot 1"), has_adjacent_bend=False)])
     for prof in (SCS, DEMO):
         rep = evaluate(part, prof, P)
-        for r in (x for x in rep.results if x.status == Status.FAIL):
+        for r in (x for x in rep.results if x.status in (Status.FAIL, Status.WARNING) and x.confirmed):
             assert r.explanation and r.recommendation and r.manufacturer and r.rule_id
             assert r.geometry_ref is not None or r.rule_type in ("thickness_range", "max_part_dimensions", "min_part_dimensions")
             assert r.required_mm is not None or r.required

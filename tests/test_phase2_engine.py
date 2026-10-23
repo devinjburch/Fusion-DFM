@@ -1,7 +1,7 @@
 """Phase 2 engine behaviour on the schema-v2 SendCutSend profile (real published values)."""
 import os
 import pytest
-from dfm_engine import PartModel, Hole, Bend, Flange, Status, load_profile, evaluate
+from dfm_engine import PartModel, Hole, Bend, Flange, GeometryRef, Status, load_profile, evaluate
 from dfm_engine.models import Cutout
 from dfm_engine.profile import DEFAULT_DIR
 
@@ -86,17 +86,62 @@ def test_flange_min_uses_apex_and_90_degree_scope():
     assert by(noapex, "scs.min_flange_length")[0].status == Status.NEEDS_REVIEW
 
 
-def test_feature_to_bend_centerline_three_outcomes():
+def test_feature_to_bend_centerline_outcomes_are_non_blocking_warnings():
     die_half = 0.630 * IN / 2          # mild .119 -> die .630 in -> 8.0 mm
-    mk = lambda d, zone: mild(holes=[Hole(diameter_mm=6, dist_to_edge_mm=30, dist_to_bend_mm=d, has_adjacent_bend=True, bend_zone_max_mm=zone)])
+    mk = lambda d, zone: mild(holes=[Hole(diameter_mm=6, dist_to_edge_mm=30, dist_to_bend_mm=d, has_adjacent_bend=True, bend_zone_max_mm=zone,
+                                          ref=GeometryRef("hole", "h4", "Hole 4"))])
     ok = by(evaluate(mk(die_half, 6), SCS, P), "scs.feature_to_bend")[0]
     assert ok.status == Status.PASS
-    fail = by(evaluate(mk(1.0, 3.0), SCS, P), "scs.feature_to_bend")[0]       # max centerline dist 4.0 < 8.0
-    assert fail.status == Status.FAIL and fail.corrections[0].kind == "move_feature"
-    review = by(evaluate(mk(5.0, 6.0), SCS, P), "scs.feature_to_bend")[0]     # between 5 and 11
-    assert review.status == Status.NEEDS_REVIEW and "centerline" in review.explanation
+    warn = by(evaluate(mk(1.0, 3.0), SCS, P), "scs.feature_to_bend")[0]       # max centerline dist 4.0 < 8.0: confirmed
+    assert warn.status == Status.WARNING and warn.confirmed and warn.severity.value == "WARNING" and warn.consequence == "warning"
+    assert warn.corrections[0].kind == "move_feature" and warn.title == "Hole 4: too close to bend"
+    unsure = by(evaluate(mk(5.0, 6.0), SCS, P), "scs.feature_to_bend")[0]     # between 5 and 11: cannot be ruled out
+    assert unsure.status == Status.WARNING and not unsure.confirmed and "centerline" in unsure.explanation
+    assert unsure.title == "Hole 4: may be too close to bend" and unsure.explanation.startswith("Not confirmed")
     unknown_zone = by(evaluate(mk(5.0, None), SCS, P), "scs.feature_to_bend")[0]
-    assert unknown_zone.status == Status.NEEDS_REVIEW
+    assert unknown_zone.status == Status.WARNING and not unknown_zone.confirmed
+
+
+def test_feature_to_bend_can_be_made_blocking_again():
+    import copy
+    prof = copy.deepcopy(SCS)
+    for r in prof["processes"][0]["rules"]:
+        if r["id"] == "scs.feature_to_bend":
+            r["consequence"] = "blocking"
+    mk = lambda d, zone: mild(holes=[Hole(diameter_mm=6, dist_to_edge_mm=30, dist_to_bend_mm=d, has_adjacent_bend=True, bend_zone_max_mm=zone)])
+    assert by(evaluate(mk(1.0, 3.0), prof, P), "scs.feature_to_bend")[0].status == Status.FAIL
+    assert by(evaluate(mk(5.0, 6.0), prof, P), "scs.feature_to_bend")[0].status == Status.NEEDS_REVIEW
+
+
+def test_warning_does_not_block_but_prevents_unconditional_verdict():
+    from dfm_engine.compare import compare, CONDITIONAL
+    p = mild(holes=[Hole(diameter_mm=6, dist_to_edge_mm=30, dist_to_bend_mm=1.0, has_adjacent_bend=True, bend_zone_max_mm=3.0)])
+    rep = evaluate(p, SCS, P)
+    assert rep.overall == Status.WARNING and rep.counts()["WARNING"] == 1 and rep.counts()["FAIL"] == 0
+    e = compare(p, [SCS]).entries[0]
+    assert e.verdict == CONDITIONAL and e.failures == 0 and e.unresolved == 0 and e.warnings == 1
+    assert e.warning_items[0]["rule_id"] == "scs.feature_to_bend" and e.warning_items[0]["confirmed"] is True
+    assert e.to_dict()["warnings"] == 1 and "warnings" in e.to_dict()["verdict_text"]
+
+
+def test_a_failure_elsewhere_still_makes_it_incompatible_with_the_warning_listed():
+    from dfm_engine.compare import compare, INCOMPATIBLE
+    p = mild(holes=[Hole(diameter_mm=6, dist_to_edge_mm=30, dist_to_bend_mm=1.0, has_adjacent_bend=True, bend_zone_max_mm=3.0)],
+             flanges=[Flange(length_mm=5, length_apex_mm=0.2 * IN, bend_angle_deg=90)])
+    e = compare(p, [SCS]).entries[0]
+    assert e.verdict == INCOMPATIBLE and e.failures == 1 and e.warnings == 1
+
+
+def test_titles_name_the_problem_by_rule():
+    h = Hole(diameter_mm=0.5, dist_to_edge_mm=1.0, dist_to_bend_mm=30, has_adjacent_bend=False, ref=GeometryRef("hole", "h2", "Hole 2"))
+    rep = evaluate(mild(holes=[h], flanges=[Flange(length_mm=5, length_apex_mm=0.2 * IN, bend_angle_deg=90, ref=GeometryRef("flange", "f1", "Flange 1"))],
+                        bends=[Bend(0.2 * IN, 90, 100, GeometryRef("bend", "b1", "Bend 1"))]), SCS, P)
+    t = {r.rule_id: r.title for r in rep.results}
+    assert t["scs.min_hole_diameter"] == "Hole 2: too small"
+    assert t["scs.min_flange_length"] == "Flange 1: flange too short"
+    assert t["scs.bend_radius_fixed"] == "Bend 1: bend radius differs from the fixed radius"
+    assert t["scs.thickness_in_stock"] == "Sheet thickness: stocked thickness"
+    assert t["scs.min_hole_edge_distance"] == "scs.min_hole_edge_distance: not checked"      # skipped rule
 
 
 def test_cutouts_checked_and_uncertain_ones_need_review():

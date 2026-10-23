@@ -13,7 +13,7 @@ Profiles live in `manufacturers/*.json` (schema in [PROFILES.md](PROFILES.md)); 
 | Available thickness ranges per material | https://sendcutsend.com/guidelines/bending/ | `thickness_range` rules |
 | Bend radius/K-factor are fixed per material thickness; no custom radii | calculator + bending pages | rule `scs.bend_radius_fixed` (WARNING) |
 | Formed flange lengths are measured from the bend apex | calculator page text | rule `scs.min_flange_length` (`measure: apex`, 90° bends only) |
-| Keep cut features >= 1/2 die width from each bend centerline | https://sendcutsend.com/guidelines/bend-deformation/ | rule `scs.feature_to_bend` |
+| Keep cut features >= 1/2 die width from each bend centerline; features in the die area "are subject to distorting" and SendCutSend shows a "feature distortion caution area" at checkout (it does not say the part is rejected) | https://sendcutsend.com/guidelines/bend-deformation/ | rule `scs.feature_to_bend`, **non-blocking WARNING** (`consequence: warning`, per user decision 2026-10-23, consistent with the source's wording) |
 | Holes/cutouts >= 50% of material thickness (laser; metals are laser cut) | https://sendcutsend.com/guidelines/sheet-cutting/ | rule `scs.min_hole_diameter` (WARNING; page says exact minimum varies per material) |
 | Tolerances: laser +/-0.005 in (mild steel page), bend angle +/-1° (<=24 in), bend-to-edge +/-0.015 in | material / bending pages | recorded in `tolerances`, not evaluated |
 | Restrictions (U/C-channel 2:1, box flange limits, angle limits, single-body STEP, model at stock specs, square reliefs) | bending + sheet-cutting pages | recorded in `restrictions` (`modelled: false`) |

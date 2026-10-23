@@ -28,7 +28,10 @@ def test_phase1_models_construct_with_phase1_signatures():
 def test_phase1_demo_profile_results_unchanged_in_shape_and_outcome():
     demo = next(p for p in list_profiles()[0] if p["manufacturer"]["id"] == "demo")
     rep = evaluate(part(), demo, "sheet_metal_bending")
-    assert rep.overall == Status.PASS and rep.counts() == {"PASS": 7, "FAIL": 0, "NEEDS_REVIEW": 0, "SKIPPED": 0}
+    c = rep.counts()
+    assert rep.overall == Status.PASS
+    assert {k: c[k] for k in ("PASS", "FAIL", "NEEDS_REVIEW", "SKIPPED")} == {"PASS": 7, "FAIL": 0, "NEEDS_REVIEW": 0, "SKIPPED": 0}
+    assert c["WARNING"] == 0          # Phase 2 addition: extra key, Phase 1 keys unchanged
     d = rep.to_dict()
     assert PHASE1_REPORT_KEYS <= set(d) and PHASE1_RESULT_KEYS <= set(d["results"][0])
     assert d["results"][0]["status"] in ("PASS", "FAIL", "NEEDS_REVIEW", "SKIPPED")

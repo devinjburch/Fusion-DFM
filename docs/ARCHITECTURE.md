@@ -40,3 +40,6 @@ ai_assistant/: ManufacturingProblem → SuggestedCorrection → approval → Cad
 - **Isolation of uncertain Fusion code**: loop → descriptor conversion is in `extraction.py`; all classification lives in CAD-free `dfm_engine/features.py`
   and is tested with synthetic fixtures and a fake `adsk` (`tests/fake_adsk.py`).
 - Reports: `dfm_engine/reporting.py` (HTML with inline CSS only; CSV; never overwrites existing files). Files go to `~/FusionDFM/reports/`.
+
+- **WARNING status / verdicts (after field round 5)**: INCOMPATIBLE (any FAIL) > NEEDS_REVIEW (unresolved or nothing verified) > CONDITIONALLY_COMPATIBLE (warnings and/or unverified core categories) > COMPATIBLE.
+  Single-manufacturer overall: FAIL > NEEDS_REVIEW > WARNING ("pass with warnings") > PASS. `RuleResult.counts()` gained a `WARNING` key (Phase 1 keys unchanged).

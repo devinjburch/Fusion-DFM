@@ -6,16 +6,19 @@
   python scripts/field_report.py --api-dir "C:\\Users\\you\\AppData\\Roaming\\Autodesk\\Autodesk Fusion 360\\API"
 
 Nothing is uploaded or committed by this script. Review the file, then commit it yourself (commands are printed).
-Home-directory paths are replaced by '~'. Design/document names that appear in logs are NOT removed: check before pushing to a public repo.
+Home-directory paths (plain, URL-encoded, doubled-backslash) are replaced by '~' and design names (from the smoke report, logs and export file names) by '<design>'.
+Still read the file before pushing to a public repo: names this script cannot discover are not removed.
 """
 import argparse
 import datetime
 import hashlib
 import os
 import platform
+import re
 import subprocess
 import sys
 import tempfile
+import urllib.parse
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
@@ -28,11 +31,50 @@ KEY_MARKERS = ("ERROR", "Traceback", "WARNING", "starting", "stopping", "toolbar
                "thickness:", "face census")
 
 
-def redact(text: str) -> str:
-    home = os.path.expanduser("~")
-    for variant in {home, home.replace("\\", "/"), home.replace("/", "\\")}:
-        if variant and variant != "~":
-            text = text.replace(variant, "~")
+def _slug(name: str) -> str:
+    return re.sub(r"[^A-Za-z0-9._-]+", "_", name).strip("_")
+
+
+def home_variants(home: str) -> list:
+    """Every spelling of the home directory that shows up in logs: native, both slash styles, Python-repr doubled
+    backslashes, and URL-encoded (file:///C:/Users/First%20Last/...)."""
+    fwd, back = home.replace("\\", "/"), home.replace("/", "\\")
+    v = {home, fwd, back, back.replace("\\", "\\\\"), urllib.parse.quote(fwd, safe="/:"), urllib.parse.quote(back, safe="\\:")}
+    return sorted((x for x in v if x and x != "~"), key=len, reverse=True)
+
+
+def name_variants(name: str) -> list:
+    """Design/document name as it appears raw, with underscores (export file names), URL-encoded, and slugged."""
+    name = name.strip()
+    if len(name) < 4 or name.startswith("<"):
+        return []
+    v = {name, name.replace(" ", "_"), _slug(name), urllib.parse.quote(name), name.replace("_", " ")}
+    return sorted((x for x in v if len(x) >= 4), key=len, reverse=True)
+
+
+EXPORT_NAME = re.compile(r"^(.+?)_\d{8}-\d{6}(?:-\d+)?(?:_issues|_comparison)?\.(?:html|csv)$")
+
+
+def private_names(report_dir: str, *texts: str) -> list:
+    """Design names: from "design '<name>'" in smoke/log text and from <Name>_<timestamp>.html export file names."""
+    names = set()
+    for t in texts:
+        names.update(re.findall(r"design '([^']+)'", t))
+    if os.path.isdir(report_dir):
+        for fn in os.listdir(report_dir):
+            m = EXPORT_NAME.match(fn)
+            if m:
+                names.add(m.group(1))
+    return sorted(n for n in names if name_variants(n))
+
+
+def redact(text: str, names=()) -> str:
+    """Replace design names with <design> and the home directory (all spellings, any case) with ~."""
+    for n in sorted(names, key=len, reverse=True):
+        for v in name_variants(n):
+            text = re.sub(re.escape(v), "<design>", text, flags=re.I)
+    for v in home_variants(os.path.expanduser("~")):
+        text = re.sub(re.escape(v), "~", text, flags=re.I)
     return text
 
 
@@ -127,7 +169,9 @@ def build_report(api_dir, run_tests=False, tail=150) -> str:
         o += ["## Automated tests", "```\n" + (r.stdout + r.stderr)[-3000:] + "\n```", ""]
     o += ["## What to fill in by hand", "- What you did (steps) and what you expected:", "- What happened instead (screenshots welcome):",
           "- Part under test (material, thickness, features):", ""]
-    return redact("\n".join(o))
+    smoke_text = "\n".join(read_tail(sr, 60))
+    names = private_names(REPORT_DIR, smoke_text, "\n".join(lines))
+    return redact("\n".join(o), names)
 
 
 def main(argv=None):

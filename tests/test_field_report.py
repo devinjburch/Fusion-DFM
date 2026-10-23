@@ -71,3 +71,60 @@ def test_missing_api_dir_message_is_clean(tmp_path, monkeypatch):
     monkeypatch.setattr(fr, "LOG_DIR", str(tmp_path / "l")); monkeypatch.setattr(fr, "REPORT_DIR", str(tmp_path / "r"))
     text = fr.build_report(None)
     assert "**not found**" in text and "Looked for" not in text and "folders: unknown" in text and "folder: ``" not in text
+
+
+# ---- the three redaction gaps reported in field report 2026-10-23_1214 ---------------------
+HOME = "C:\\Users\\Jane Doe"
+
+
+@pytest.fixture
+def fake_home(monkeypatch):
+    monkeypatch.setattr(os.path, "expanduser", lambda p: HOME if p == "~" else p)
+
+
+def test_redact_url_encoded_home_path(fake_home):
+    t = fr.redact("creating palette from file:///C:/Users/Jane%20Doe/AppData/Roaming/Autodesk/x/index.html (exists=True)")
+    assert "Jane" not in t and "file:///~/AppData/Roaming" in t
+
+
+def test_redact_python_repr_doubled_backslashes(fake_home):
+    line = "report written: {'html': 'C:\\\\Users\\\\Jane Doe\\\\FusionDFM\\\\reports\\\\x.html'}"
+    assert "\\\\Users" in line                                   # the literal text has doubled backslashes
+    t = fr.redact(line)
+    assert "Jane" not in t and "Users" not in t and "'~\\\\FusionDFM" in t
+
+
+def test_redact_is_case_insensitive_and_covers_both_slash_styles(fake_home):
+    t = fr.redact("c:\\users\\jane doe\\a and C:/Users/Jane Doe/b")
+    assert "jane" not in t.lower() and t.count("~") == 2
+
+
+def test_redact_design_name_in_export_file_names_and_logs(fake_home, tmp_path):
+    rep = tmp_path / "reports"; rep.mkdir()
+    for fn in ("KPRL4FD_Standoff_20261023-121239.html", "KPRL4FD_Standoff_20261023-121239_issues.csv",
+               "KPRL4FD_Standoff_20261023-121241-1_comparison.csv"):
+        (rep / fn).write_text("x")
+    names = fr.private_names(str(rep), "OK active_design: design 'My Secret Part v2'")
+    assert set(names) == {"KPRL4FD_Standoff", "My Secret Part v2"}
+    text = ("- `KPRL4FD_Standoff_20261023-121239.html` (10 bytes)\n"
+            "report written: C:\\\\Users\\\\Jane Doe\\\\FusionDFM\\\\reports\\\\My_Secret_Part_v2_20261023-1212.html\n"
+            "design 'My Secret Part v2' and file:///C:/Users/Jane%20Doe/My%20Secret%20Part%20v2.step and KPRL4FD Standoff")
+    out = fr.redact(text, names)
+    for secret in ("KPRL4FD", "Secret", "Jane", "Doe"):
+        assert secret not in out, (secret, out)
+    assert "<design>_20261023-121239.html" in out and "~" in out
+
+
+def test_redact_ignores_short_or_placeholder_names(fake_home):
+    assert fr.name_variants("<design>") == [] and fr.name_variants("Box") == []
+    assert fr.redact("a Box is a box", ["Box"]) == "a Box is a box"
+
+
+def test_build_report_redacts_names_from_exports_and_smoke(fake_home, tmp_path, monkeypatch):
+    logs = tmp_path / "logs"; logs.mkdir(); rep = tmp_path / "reports"; rep.mkdir()
+    (rep / "Gizmo_Bracket_20261023-121239.html").write_text("x")
+    (logs / "smoke_report.txt").write_text("OK   active_design: design 'Gizmo Bracket'\n")
+    (logs / "fusion_dfm.log").write_text(f"x INFO report written: {{'html': '{HOME}\\\\FusionDFM\\\\reports\\\\Gizmo_Bracket_20261023-121239.html'}}\n")
+    monkeypatch.setattr(fr, "LOG_DIR", str(logs)); monkeypatch.setattr(fr, "REPORT_DIR", str(rep))
+    text = fr.build_report(None)
+    assert "Gizmo" not in text and "Jane" not in text and "<design>" in text

@@ -13,7 +13,7 @@ VERDICT_LABEL = {"COMPATIBLE": "Compatible", "CONDITIONALLY_COMPATIBLE": "Condit
                  "NEEDS_REVIEW": "Needs review", "INCOMPATIBLE": "Incompatible"}
 LIMITATIONS = [
     "This report is generated automatically. It is decision support, not a manufacturer quote or approval; confirm with the manufacturer before ordering.",
-    "Only rules that are enabled AND verified against an official source decide PASS/FAIL. Unverified or disabled rules are listed as 'not checked' and never count as passes.",
+    "Rules marked non-blocking (warnings) never make a part incompatible, but they are always listed and prevent an unconditional 'compatible' verdict. Only rules that are enabled AND verified against an official source decide PASS/FAIL. Unverified or disabled rules are listed as 'not checked' and never count as passes.",
     "Anything that could not be measured or classified is reported as NEEDS REVIEW. A missing value is never treated as a pass.",
     "Manufacturer requirements change. Each rule shows its source and the date it was verified; re-verify before relying on a value.",
     "Geometry is extracted from the Fusion model: only circular through holes, slots, rectangular cutouts and irregular outlines are recognised; irregular cutout widths are not computed.",
@@ -47,7 +47,7 @@ CSS = """
 h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:28px 0 8px;border-bottom:2px solid var(--bd);padding-bottom:4px}h3{font-size:14px;margin:16px 0 6px}
 .meta{color:var(--mut);font-size:12px}table{border-collapse:collapse;width:100%;margin:8px 0}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top;font-size:13px}
 th{background:#f3f5f7}.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:10px;border:1px solid currentColor;white-space:nowrap}
-.COMPATIBLE,.PASS{color:var(--pass)}.CONDITIONALLY_COMPATIBLE,.NEEDS_REVIEW{color:var(--warn)}.INCOMPATIBLE,.FAIL{color:var(--fail)}.SKIPPED{color:var(--mut)}
+.COMPATIBLE,.PASS{color:var(--pass)}.CONDITIONALLY_COMPATIBLE,.NEEDS_REVIEW{color:var(--warn)}.INCOMPATIBLE,.FAIL{color:var(--fail)}.SKIPPED{color:var(--mut)}.WARNING{color:var(--warn)}.box.WARNING{border-left-color:var(--warn)}
 .box{border:1px solid var(--bd);border-left:4px solid var(--mut);border-radius:4px;padding:8px 12px;margin:8px 0}.box.FAIL{border-left-color:var(--fail)}.box.NEEDS_REVIEW{border-left-color:var(--warn)}
 .demo{background:#fff3cd;border:1px solid #e0c36a;padding:8px 12px;border-radius:4px;font-weight:600;margin:8px 0}.disc{background:#f6f8fa;border:1px solid var(--bd);border-radius:4px;padding:8px 14px}
 .fix{margin-top:4px}.src{color:var(--mut);font-size:12px}details{margin:6px 0}summary{cursor:pointer;color:var(--mut)}a{color:var(--acc)}
@@ -57,10 +57,10 @@ th{background:#f3f5f7}.tag{display:inline-block;font-size:11px;font-weight:700;p
 
 def _issue_html(r):
     parts = [f'<div class="box {r["status"]}"><span class="tag {r["status"]}">{r["status"].replace("_", " ")}</span> '
-             f'<b>{_e(r.get("ref_label") or r["rule_type"].replace("_", " "))}</b>'
+             f'<b>{_e(r.get("title") or r.get("ref_label") or r["rule_type"].replace("_", " "))}</b>'
              f'{" <span class=src>[advisory]</span>" if r.get("strength") == "advisory" else ""}<div>{_e(r["explanation"])}</div>']
-    if r["status"] in ("FAIL", "NEEDS_REVIEW") and r.get("recommendation"):
-        parts.append(f'<div class="fix"><b>{"Fix" if r["status"] == "FAIL" else "Next step"}:</b> {_e(r["recommendation"])}</div>')
+    if r["status"] in ("FAIL", "NEEDS_REVIEW", "WARNING") and r.get("recommendation"):
+        parts.append(f'<div class="fix"><b>{"Fix" if r["status"] == "FAIL" else ("Suggested fix" if r["status"] == "WARNING" else "Next step")}:</b> {_e(r["recommendation"])}</div>')
     if r.get("rationale") and r["status"] == "FAIL":
         parts.append(f'<div class="src"><b>Why:</b> {_e(r["rationale"])}</div>')
     for c in r.get("corrections", []):
@@ -81,7 +81,7 @@ def render_html(ctx: dict) -> str:
     if any(e["demo"] for e in entries):
         o.append('<div class="demo">Contains results from the DEMONSTRATION profile: fictional limits, not a real manufacturer.</div>')
     # --- comparison table
-    o.append("<h2>Manufacturer comparison</h2><table><tr><th>Manufacturer</th><th>Verdict</th><th>Confirmed failures</th><th>Unresolved checks</th><th>Passed</th><th>Not checked</th><th>Notes</th></tr>")
+    o.append("<h2>Manufacturer comparison</h2><table><tr><th>Manufacturer</th><th>Verdict</th><th>Confirmed failures</th><th>Warnings</th><th>Unresolved checks</th><th>Passed</th><th>Not checked</th><th>Notes</th></tr>")
     for e in entries:
         notes = e["verdict_text"]
         if e["coverage_gap_labels"]:
@@ -89,7 +89,7 @@ def render_html(ctx: dict) -> str:
         if e["demo"]:
             notes = "DEMO profile. " + notes
         o.append(f'<tr><td><b>{_e(e["manufacturer_name"])}</b><div class="src">{_e(e["process_id"])} · profile {_e(e["profile_status"])}</div></td>'
-                 f'<td><span class="tag {e["verdict"]}">{VERDICT_LABEL[e["verdict"]]}</span></td><td>{e["failures"]}</td><td>{e["unresolved"]}</td>'
+                 f'<td><span class="tag {e["verdict"]}">{VERDICT_LABEL[e["verdict"]]}</span></td><td>{e["failures"]}</td><td>{e["warnings"]}</td><td>{e["unresolved"]}</td>'
                  f'<td>{e["passed"]}</td><td>{e["not_checked"]}</td><td>{_e(notes)}</td></tr>')
     o.append("</table>")
     # --- model info
@@ -112,6 +112,7 @@ def render_html(ctx: dict) -> str:
             o.append(f'<div class="disc"><b>Data status ({_e(e["research_status"])}):</b> {_e(e["research_notes"])}</div>')
         for rep in e["reports"]:
             fails = [r for r in rep["results"] if r["status"] == "FAIL"]
+            warns = [r for r in rep["results"] if r["status"] == "WARNING"]
             nrs = [r for r in rep["results"] if r["status"] == "NEEDS_REVIEW"]
             oks = [r for r in rep["results"] if r["status"] == "PASS"]
             sk = [r for r in rep["results"] if r["status"] == "SKIPPED"]
@@ -121,6 +122,8 @@ def render_html(ctx: dict) -> str:
                 o.append(f'<div class="src">{_e(n)}</div>')
             if fails:
                 o.append(f"<b>Confirmed failures ({len(fails)})</b>" + "".join(_issue_html(r) for r in fails))
+            if warns:
+                o.append(f"<b>Warnings - non-blocking ({len(warns)})</b>" + "".join(_issue_html(r) for r in warns))
             if nrs:
                 o.append(f"<b>Needs review ({len(nrs)})</b>" + "".join(_issue_html(r) for r in nrs))
             if oks:
@@ -147,7 +150,7 @@ def render_html(ctx: dict) -> str:
     return "".join(o)
 
 
-ISSUE_COLS = ["manufacturer", "process", "part", "rule_id", "status", "severity", "strength", "feature", "measured", "required",
+ISSUE_COLS = ["manufacturer", "process", "part", "rule_id", "title", "status", "severity", "strength", "feature", "measured", "required",
               "explanation", "recommendation", "proposed_correction", "source_url", "date_verified", "demo_profile"]
 
 
@@ -161,7 +164,7 @@ def render_issues_csv(ctx: dict, include_passes: bool = False) -> str:
                 if r["status"] == "PASS" and not include_passes:
                     continue
                 m = "" if r.get("measured") is None else f'{r["measured"]:.4g}'
-                w.writerow([e["manufacturer_name"], e["process_id"], rep["part_name"], r["rule_id"], r["status"], r["severity"],
+                w.writerow([e["manufacturer_name"], e["process_id"], rep["part_name"], r["rule_id"], r.get("title", ""), r["status"], r["severity"],
                             r.get("strength", ""), r.get("ref_label") or r.get("feature_kind", ""), m, r.get("required") or "",
                             r["explanation"], r.get("recommendation", ""), "; ".join(c["summary"] for c in r.get("corrections", [])),
                             r.get("source_url", ""), r.get("date_verified", ""), "yes" if r.get("demo") else ""])
@@ -171,11 +174,11 @@ def render_issues_csv(ctx: dict, include_passes: bool = False) -> str:
 def render_comparison_csv(ctx: dict) -> str:
     buf = io.StringIO()
     w = csv.writer(buf, lineterminator="\n")
-    w.writerow(["manufacturer", "process", "verdict", "confirmed_failures", "unresolved_checks", "passed", "not_checked",
+    w.writerow(["manufacturer", "process", "verdict", "confirmed_failures", "warnings", "unresolved_checks", "passed", "not_checked",
                 "unverified_categories", "reasons", "suggested_corrections", "profile_status", "demo_profile"])
     for e in ctx["comparison"]["entries"]:
-        w.writerow([e["manufacturer_name"], e["process_id"], e["verdict"], e["failures"], e["unresolved"], e["passed"], e["not_checked"],
-                    "; ".join(e["coverage_gap_labels"]), " | ".join(r["explanation"] for r in e["reasons"]),
+        w.writerow([e["manufacturer_name"], e["process_id"], e["verdict"], e["failures"], e["warnings"], e["unresolved"], e["passed"], e["not_checked"],
+                    "; ".join(e["coverage_gap_labels"]), " | ".join(r["explanation"] for r in e["reasons"] + e["warning_items"]),
                     " | ".join(c["summary"] for c in e["corrections"]), e["profile_status"], "yes" if e["demo"] else ""])
     return buf.getvalue()
 
