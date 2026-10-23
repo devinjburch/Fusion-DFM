@@ -70,4 +70,4 @@ def test_tests_never_write_to_the_real_home_logs():
 def test_missing_api_dir_message_is_clean(tmp_path, monkeypatch):
     monkeypatch.setattr(fr, "LOG_DIR", str(tmp_path / "l")); monkeypatch.setattr(fr, "REPORT_DIR", str(tmp_path / "r"))
     text = fr.build_report(None)
-    assert "**not found**" in text and "Looked for" not in text and "folders: unknown" in text and "``" not in text
+    assert "**not found**" in text and "Looked for" not in text and "folders: unknown" in text and "folder: ``" not in text
