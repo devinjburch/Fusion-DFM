@@ -21,8 +21,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 import install  # noqa: E402
 
-LOG_DIR = os.path.join(os.path.expanduser("~"), "FusionDFM", "logs")
-REPORT_DIR = os.path.join(os.path.expanduser("~"), "FusionDFM", "reports")
+LOG_DIR = os.environ.get("FUSIONDFM_LOG_DIR") or os.path.join(os.path.expanduser("~"), "FusionDFM", "logs")
+REPORT_DIR = os.environ.get("FUSIONDFM_REPORT_DIR") or os.path.join(os.path.expanduser("~"), "FusionDFM", "reports")
 KEY_MARKERS = ("ERROR", "Traceback", "WARNING", "starting", "stopping", "toolbar panels", "button added", "creating palette",
                "palette page loaded", "extracted:", "extract_all", "analysis ", "comparison", "report written", "ignored inner loop",
                "thickness:", "face census")
@@ -89,12 +89,16 @@ def build_report(api_dir, run_tests=False, tail=150) -> str:
           f"- Repo branch: {git('rev-parse', '--abbrev-ref', 'HEAD')}", f"- Repo commit: {git('rev-parse', '--short', 'HEAD')}",
           f"- Uncommitted changes: {'yes' if git('status', '--porcelain') else 'no'}", ""]
     o.append("## Fusion install location")
-    o.append(f"- API folder used: `{api_dir}`  (candidates: {', '.join('`%s`' % c + (' [exists]' if os.path.isdir(c) else '') for c in install.candidate_api_dirs())})")
-    addin = os.path.join(api_dir, "AddIns", install.ADDIN)
-    smoke = os.path.join(api_dir, "Scripts", install.SMOKE)
-    o.append(f"- Add-in folder: `{addin}` — {'present' if os.path.isdir(addin) else '**MISSING**'}")
-    o.append(f"- Smoke script folder: `{smoke}` — {'present' if os.path.isdir(smoke) else '**MISSING** (manual installs must copy smoke_test/)'}")
-    if os.path.isdir(addin):
+    cands = ', '.join('`%s`' % c + (' [exists]' if os.path.isdir(c) else '') for c in install.candidate_api_dirs())
+    o.append(f"- API folder used: {'`' + api_dir + '`' if api_dir else '**not found** — pass --api-dir'}  (candidates: {cands})")
+    addin = os.path.join(api_dir or "", "AddIns", install.ADDIN) if api_dir else ""
+    smoke = os.path.join(api_dir or "", "Scripts", install.SMOKE) if api_dir else ""
+    if api_dir:
+        o.append(f"- Add-in folder: `{addin}` — {'present' if os.path.isdir(addin) else '**MISSING**'}")
+        o.append(f"- Smoke script folder: `{smoke}` — {'present' if os.path.isdir(smoke) else '**MISSING** (manual installs must copy smoke_test/)'}")
+    else:
+        o.append("- Add-in / smoke script folders: unknown (API folder not found)")
+    if addin and os.path.isdir(addin):
         c = compare_install(addin)
         o.append(f"- Installed vs this repo: {c['total'] - len(c['missing']) - len(c['different'])}/{c['total']} files identical; "
                  f"missing {len(c['missing'])}, different {len(c['different'])}, extra {len(c['extra'])}")
@@ -134,8 +138,8 @@ def main(argv=None):
     a = ap.parse_args(argv)
     try:
         api = a.api_dir or install.pick_api_dir()
-    except SystemExit as e:
-        api = a.api_dir or f"(not found: {e})"
+    except SystemExit:
+        api = None
     text = build_report(api, a.run_tests)
     out = a.out or os.path.join(ROOT, "docs", "field-reports", datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S") + ".md")
     os.makedirs(os.path.dirname(out), exist_ok=True)

@@ -117,7 +117,7 @@ def _export(self):
 
 
 def _open_file(self, path):
-    reports = os.path.join(os.path.expanduser("~"), "FusionDFM", "reports")
+    reports = bridge.REPORT_DIR
     full = os.path.abspath(path)
     if full.startswith(os.path.abspath(reports) + os.sep) and full.endswith(".html") and os.path.exists(full):
         webbrowser.open(pathlib.Path(full).as_uri())     # only files this add-in wrote

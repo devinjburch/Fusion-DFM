@@ -58,3 +58,16 @@ def test_main_writes_file_and_never_commits(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(fr, "LOG_DIR", str(tmp_path / "logs")); monkeypatch.setattr(fr, "REPORT_DIR", str(tmp_path / "r"))
     out = fr.main(["--api-dir", str(tmp_path / "API"), "--out", str(tmp_path / "out" / "r.md")])
     assert os.path.exists(out) and "git add docs/field-reports" in capsys.readouterr().out
+
+
+def test_tests_never_write_to_the_real_home_logs():
+    from fusion_addin import log
+    assert log.LOG_DIR != os.path.join(os.path.expanduser("~"), "FusionDFM", "logs") and "fusiondfm_tests_" in log.LOG_DIR
+    from fusion_addin import bridge
+    assert "fusiondfm_tests_" in bridge.REPORT_DIR
+
+
+def test_missing_api_dir_message_is_clean(tmp_path, monkeypatch):
+    monkeypatch.setattr(fr, "LOG_DIR", str(tmp_path / "l")); monkeypatch.setattr(fr, "REPORT_DIR", str(tmp_path / "r"))
+    text = fr.build_report(None)
+    assert "**not found**" in text and "Looked for" not in text and "folders: unknown" in text and "``" not in text

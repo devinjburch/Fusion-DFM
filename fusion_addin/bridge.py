@@ -6,6 +6,8 @@ from dfm_engine import evaluate, list_profiles
 from dfm_engine.compare import Target, compare
 from dfm_engine.reporting import build_context, write_reports
 
+REPORT_DIR = os.environ.get("FUSIONDFM_REPORT_DIR") or os.path.join(os.path.expanduser("~"), "FusionDFM", "reports")
+
 
 def profiles_payload(directory=None):
     profiles, errors = list_profiles(directory) if directory else list_profiles()
@@ -48,7 +50,7 @@ def export_payload(parts, warnings, request, model_name="", document="", directo
     """Build the comparison and write HTML + CSV reports. Returns {paths}."""
     pl = compare_payload(parts, warnings, request, directory)
     ctx = build_context(pl["comparison"], pl["parts"], model_name, document)
-    out_dir = out_dir or os.path.join(os.path.expanduser("~"), "FusionDFM", "reports")
+    out_dir = out_dir or REPORT_DIR
     paths = write_reports(ctx, out_dir, model_name or (parts[0].name if parts else "report"))
     return {"paths": paths}
 

@@ -2,7 +2,7 @@ import logging
 import logging.handlers
 import os
 
-LOG_DIR = os.path.join(os.path.expanduser("~"), "FusionDFM", "logs")
+LOG_DIR = os.environ.get("FUSIONDFM_LOG_DIR") or os.path.join(os.path.expanduser("~"), "FusionDFM", "logs")
 LOG_FILE = os.path.join(LOG_DIR, "fusion_dfm.log")
 
 
