@@ -30,7 +30,7 @@ MEASURES = {"apex", "tangent", "centerline"}
 PROFILE_STATUS = {"verified", "partially_verified", "unverified", "demo"}
 SEVERITIES = {"ERROR", "WARNING", "INFO"}
 STRENGTHS = {"requirement", "advisory"}
-CONSEQUENCES = {"blocking", "warning"}
+CONSEQUENCES = {"blocking", "warning", "review"}
 RESEARCH_STATUS = {"verified", "partial", "blocked", "not_started"}
 SCHEMA_VERSIONS = {1, 2}
 DEFAULT_TOLERANCE_MM = 0.05
@@ -142,8 +142,13 @@ def _validate_rule(pid, r, mat_ids, spec_fields_by_mat, demo, v2):
     _req(r.get("severity", "ERROR") in SEVERITIES, f"{rid}: bad severity")
     _req(r.get("strength", "requirement") in STRENGTHS, f"{rid}: bad strength")
     _req(r.get("consequence", "blocking") in CONSEQUENCES, f"{rid}: bad consequence")
-    if r.get("consequence") == "warning":
-        _req(r.get("notes") or r.get("rationale"), f"{rid}: a non-blocking (warning) rule must justify that in 'notes' or 'rationale'")
+    if r.get("consequence", "blocking") != "blocking":
+        _req(r.get("notes") or r.get("rationale"), f"{rid}: a non-blocking ({r['consequence']}) rule must justify that in 'notes' or 'rationale'")
+    _req(isinstance(r.get("provisional", False), bool), f"{rid}: 'provisional' must be boolean")
+    if r.get("provisional") and r["enabled"]:
+        src = r.get("source") or {}
+        _req(src.get("provenance"), f"{rid}: a provisional rule needs source.provenance (who supplied/transcribed it)")
+        _req(r.get("consequence", "blocking") != "blocking", f"{rid}: provisional data must not be blocking")
     params = r.get("parameters") or {}
     for k, v in params.items():
         _req(k in RULE_TYPES[t], f"{rid}: parameter {k!r} not valid for {t}")

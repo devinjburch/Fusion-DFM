@@ -184,7 +184,7 @@ def test_advisory_rules_never_fail():
             r["strength"] = "advisory"
     rep = evaluate(mild(flanges=[Flange(length_mm=5, length_apex_mm=0.1 * IN, bend_angle_deg=90)]), prof, P)
     r = by(rep, "scs.min_flange_length")[0]
-    assert r.status == Status.NEEDS_REVIEW and r.severity.value == "INFO" and r.strength == "advisory"
+    assert r.status == Status.WARNING and r.severity.value == "INFO" and r.strength == "advisory"   # measured miss: low-severity warning
     assert r.explanation.startswith("Advisory guidance")
 
 
@@ -203,3 +203,67 @@ def test_recommendation_text_has_values_and_units():
     r = by(rep, "scs.min_hole_diameter")[0]
     assert r.status == Status.FAIL
     assert "mm" in r.explanation and "in)" in r.explanation and r.rationale and r.source_url and r.date_verified
+
+
+# ---- round 6: unchecked non-blocking rules must not be shown as warnings --------------------
+def test_unevaluable_non_blocking_rule_stays_needs_review_and_title_makes_no_claim():
+    p = mild(material_name="Steel")                       # Fusion's generic name: no material match -> no spec table
+    rep = evaluate(p, SCS, P)
+    r = by(rep, "scs.feature_to_bend")[0]
+    assert r.status == Status.NEEDS_REVIEW and not r.borderline and r.consequence == "warning"
+    assert r.title == "Feature-to-bend distance: could not be checked" and "too close" not in r.title
+    assert "Not confirmed (non-blocking rule)" not in r.explanation
+    assert rep.counts()["WARNING"] == 0
+
+
+def test_borderline_measurement_is_a_warning_but_unmeasured_is_not():
+    mk = lambda d, zone: mild(holes=[Hole(diameter_mm=6, dist_to_edge_mm=30, dist_to_bend_mm=d, has_adjacent_bend=True, bend_zone_max_mm=zone,
+                                          ref=GeometryRef("hole", "h1", "Hole 1"))])
+    b = by(evaluate(mk(5.0, 6.0), SCS, P), "scs.feature_to_bend")[0]
+    assert b.status == Status.WARNING and b.borderline and not b.confirmed and b.title == "Hole 1: may be too close to bend"
+    unmeasured = by(evaluate(mk(None, 6.0), SCS, P), "scs.feature_to_bend")[0]       # hole could not be measured to the bend
+    assert unmeasured.status == Status.NEEDS_REVIEW and unmeasured.title == "Hole 1: could not be checked"
+
+
+def _with_rule(extra):
+    import copy
+    prof = copy.deepcopy(SCS)
+    r = next(x for x in prof["processes"][0]["rules"] if x["id"] == "scs.max_flat_size")
+    r.update(extra)
+    return prof
+
+
+def test_review_consequence_turns_a_confirmed_exceedance_into_needs_review():
+    prof = _with_rule({"consequence": "review", "notes": "nominal limit; larger on request"})
+    rep = evaluate(mild(flat_dimensions_mm=(1200, 700)), prof, P)
+    r = by(rep, "scs.max_flat_size")[0]
+    assert r.status == Status.NEEDS_REVIEW and r.explanation.startswith("Exceeds a published typical/nominal limit")
+    assert r.title == "Flat size: flat part too large" and rep.counts()["FAIL"] == 0
+
+
+def test_provisional_rule_pass_is_marked_and_never_counts_toward_coverage():
+    prof = _with_rule({"provisional": True, "consequence": "review", "notes": "second-hand data",
+                       "source": {"url": "https://x.test", "date_verified": "2026-10-23", "provenance": "supplied by owner"}})
+    rep = evaluate(mild(), prof, P)
+    r = by(rep, "scs.max_flat_size")[0]
+    assert r.status == Status.PASS and r.provisional and "provisional data" in r.explanation
+    assert "max_part_size" in rep.coverage_gaps            # a provisional rule does not cover its category
+
+
+def test_validator_rules_for_provisional_and_review():
+    import copy
+    import pytest
+    from dfm_engine import load_profile_dict, ProfileError
+    prof = copy.deepcopy(SCS)
+    rule = next(x for x in prof["processes"][0]["rules"] if x["id"] == "scs.max_flat_size")
+    rule["provisional"] = True                              # no provenance, still blocking
+    with pytest.raises(ProfileError, match="provenance"):
+        load_profile_dict(prof)
+    rule["source"]["provenance"] = "owner"
+    with pytest.raises(ProfileError, match="must not be blocking"):
+        load_profile_dict(prof)
+    rule["consequence"] = "review"
+    with pytest.raises(ProfileError, match="must justify"):
+        load_profile_dict(prof)
+    rule["notes"] = "nominal"
+    load_profile_dict(prof)

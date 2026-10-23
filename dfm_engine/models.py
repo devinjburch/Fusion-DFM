@@ -128,7 +128,9 @@ class RuleResult:
     feature_label: str = ""               # e.g. "Hole #4" when the CAD reference has no label
     title: str = ""                       # short rule-specific heading, e.g. "Hole 4: too close to bend"
     consequence: str = "blocking"         # "blocking" | "warning" (from the rule)
-    confirmed: bool = True                # False for a WARNING that could not be confirmed (unresolved check)
+    confirmed: bool = True                # False for a WARNING that could not be confirmed (measured but borderline)
+    borderline: bool = False              # NEEDS_REVIEW/WARNING produced from a real measurement that could not be decided
+    provisional: bool = False             # rule data is second-hand/unconfirmed: can support but never establish "compatible"
 
     def to_dict(self) -> dict:
         d = asdict(self)

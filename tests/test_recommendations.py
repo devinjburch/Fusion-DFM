@@ -100,7 +100,8 @@ def test_verified_requirement_vs_advisory_wording():
     adv = [x for x in evaluate(part, prof, P).results if x.rule_id == "scs.min_hole_diameter"][0]
     req = [x for x in evaluate(part, SCS, P).results if x.rule_id == "scs.min_hole_diameter"][0]
     assert req.status == Status.FAIL and req.strength == "requirement"
-    assert adv.status == Status.NEEDS_REVIEW and adv.strength == "advisory" and adv.explanation.startswith("Advisory guidance")
+    assert adv.status == Status.WARNING and adv.severity.value == "INFO" and adv.strength == "advisory"
+    assert adv.explanation.startswith("Advisory guidance")
 
 
 def test_correction_arithmetic_and_summary():

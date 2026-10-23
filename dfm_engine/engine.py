@@ -107,7 +107,10 @@ PHRASES = {
     "min_part_dimensions": ("flat part too small", "flat size not confirmed", "flat size ok"),
 }
 DEFAULT_LABEL = {"thickness_range": "Sheet thickness", "thickness_in_stock": "Sheet thickness",
-                 "max_part_dimensions": "Flat size", "min_part_dimensions": "Flat size"}
+                 "max_part_dimensions": "Flat size", "min_part_dimensions": "Flat size",
+                 "min_hole_bend_distance": "Feature-to-bend distance", "min_hole_edge_distance": "Feature-to-edge distance",
+                 "min_hole_diameter": "Hole/cutout size", "min_flange_length": "Flange length", "min_bend_radius": "Bend radius",
+                 "bend_radius_match": "Bend radius", "max_bend_length": "Bend length"}
 
 
 def make_title(r: RuleResult, original: Status) -> str:
@@ -115,8 +118,15 @@ def make_title(r: RuleResult, original: Status) -> str:
         return f"{r.rule_id}: not checked"
     label = (r.geometry_ref.label if r.geometry_ref and r.geometry_ref.label else "") or r.feature_label \
         or DEFAULT_LABEL.get(r.rule_type, "Part")
-    bad, maybe, ok = PHRASES.get(r.rule_type, ("requirement not met", "could not be checked", "ok"))
-    phrase = ok if r.status == Status.PASS else (bad if original == Status.FAIL else maybe)
+    bad, maybe, ok = PHRASES.get(r.rule_type, ("requirement not met", "may not be met", "ok"))
+    if r.status == Status.PASS:
+        phrase = ok
+    elif original == Status.FAIL:
+        phrase = bad                                    # confirmed violation (even if shown as a warning / needs-review)
+    elif r.borderline:
+        phrase = maybe                                  # measured, but the limit could not be decided
+    else:
+        phrase = "could not be checked"                 # nothing was measured: never assert a finding
     return f"{label}: {phrase}"
 
 
@@ -125,7 +135,7 @@ def _coverage_gaps(process, material_id, demo):
     required = process.get("coverage_required", CORE_CATEGORIES)
     covered = set()
     for r in process.get("rules", []):
-        if not r["enabled"] or not (r["verified"] or demo):
+        if not r["enabled"] or not (r["verified"] or demo) or r.get("provisional"):
             continue
         mats = (r.get("applies_to") or {}).get("materials")
         if mats and material_id is not None and material_id not in mats:
@@ -144,7 +154,7 @@ class _Ctx:
 
     # ------------------------------------------------------------ result construction
     def _mk(self, status, explanation, rec="", measured=None, required=None, ref=None,
-            severity=None, required_mm=None, corrections=None, feature_kind="", label="") -> RuleResult:
+            severity=None, required_mm=None, corrections=None, feature_kind="", label="", borderline=False) -> RuleResult:
         rule = self.rule
         src = rule.get("source") or {}
         if severity is None:
@@ -157,7 +167,7 @@ class _Ctx:
             manufacturer=self.mfr, demo=self.profile["profile_status"] == "demo",
             strength=rule.get("strength", "requirement"), rationale=rule.get("rationale", ""),
             required_mm=required_mm, notes=rule.get("notes", ""), corrections=corrections or [],
-            feature_kind=feature_kind, feature_label=label)
+            feature_kind=feature_kind, feature_label=label, borderline=borderline)
 
     def _review(self, why, ref=None, kind=""):
         return self._mk(Status.NEEDS_REVIEW, f"Cannot evaluate: {why}",
@@ -195,27 +205,40 @@ class _Ctx:
         out = getattr(self, "_" + rule["type"])(rule, rule.get("parameters") or {})
         original = [r.status for r in out]
         out = [self._apply_strength(r) for r in out]
-        if rule.get("consequence") == "warning" and rule.get("strength", "requirement") == "requirement":
-            out = [self._apply_consequence(r) for r in out]
+        cons = rule.get("consequence", "blocking")
+        if cons != "blocking" and rule.get("strength", "requirement") == "requirement":
+            out = [self._apply_consequence(r, cons) for r in out]
         for r, o in zip(out, original):
-            r.consequence = rule.get("consequence", "blocking")
+            r.consequence = cons
+            r.provisional = bool(rule.get("provisional"))
+            if r.provisional and r.status == Status.PASS:
+                r.explanation += " (provisional data: not confirmed against the manufacturer's page)"
             r.title = make_title(r, o)
         return out
 
     @staticmethod
-    def _apply_consequence(r):
-        """Non-blocking rule: a confirmed violation OR an unresolved check becomes a WARNING (never a pass)."""
-        if r.status in (Status.FAIL, Status.NEEDS_REVIEW):
-            r.confirmed = r.status == Status.FAIL
-            r.status, r.severity = Status.WARNING, Severity.WARNING
-            if not r.confirmed:
-                r.explanation = "Not confirmed (non-blocking rule): " + r.explanation
+    def _apply_strength(r):
+        if r.strength == "advisory" and r.status == Status.FAIL:
+            r.status, r.severity = Status.WARNING, Severity.INFO
+            r.explanation = "Advisory guidance (not a hard requirement): " + r.explanation
         return r
 
-    def _apply_strength(self, r):
-        if r.strength == "advisory" and r.status == Status.FAIL:
-            r.status, r.severity = Status.NEEDS_REVIEW, Severity.INFO
-            r.explanation = "Advisory guidance (not a hard requirement): " + r.explanation
+    @staticmethod
+    def _apply_consequence(r, consequence):
+        """Non-blocking rules. Only MEASURED outcomes are re-labelled; an unevaluable check stays NEEDS_REVIEW.
+
+        warning: confirmed violation -> WARNING; measured-but-borderline -> WARNING (confirmed=False).
+        review : confirmed violation of a nominal/typical limit -> NEEDS_REVIEW (confirm with the manufacturer).
+        """
+        if r.status == Status.FAIL:
+            if consequence == "warning":
+                r.status, r.severity, r.confirmed = Status.WARNING, Severity.WARNING, True
+            else:
+                r.status, r.severity = Status.NEEDS_REVIEW, Severity.WARNING
+                r.explanation = "Exceeds a published typical/nominal limit; confirm with the manufacturer: " + r.explanation
+        elif r.status == Status.NEEDS_REVIEW and r.borderline and consequence == "warning":
+            r.status, r.severity, r.confirmed = Status.WARNING, Severity.WARNING, False
+            r.explanation = "Not confirmed (non-blocking rule): " + r.explanation
         return r
 
     # ------------------------------------------------------------ requirement resolution
@@ -305,7 +328,7 @@ class _Ctx:
                 out.append(self._mk(Status.NEEDS_REVIEW,
                                     f"{name} is {fmt_len(v)}; manufacturer sources disagree on the minimum ({req_txt}).",
                                     "Resolve the conflicting manufacturer values or meet the larger one.",
-                                    measured=v, required=req_txt, ref=ref, required_mm=req, feature_kind=kind, label=name))
+                                    measured=v, required=req_txt, ref=ref, required_mm=req, feature_kind=kind, label=name, borderline=True))
             else:
                 delta = req - v
                 c = corr(name, it, v, req)
@@ -535,7 +558,7 @@ class _Ctx:
                 out.append(self._mk(Status.NEEDS_REVIEW,
                                     f"{name}: distance to the bend tangent line is {fmt_len(d)}; the distance to the bend centerline (required >= {fmt_len(hi_req)}) lies between {fmt_len(d)} and {bound}, so compliance cannot be confirmed.",
                                     "Measure to the bend centerline on the flat pattern, or move the feature further from the bend.",
-                                    measured=d, required=req_txt, ref=ref, required_mm=hi_req, feature_kind=kind, label=name))
+                                    measured=d, required=req_txt, ref=ref, required_mm=hi_req, feature_kind=kind, label=name, borderline=True))
         return out
 
     def _max_bend_length(self, rule, p):
