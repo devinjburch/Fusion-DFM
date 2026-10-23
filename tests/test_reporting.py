@@ -41,14 +41,15 @@ def test_html_contains_required_sections_and_disclosures():
               "never treated as a pass", "A missing value is never treated as a pass"):
         assert s in h or s.lower() in h.lower(), s
     assert "https://sendcutsend.com/bending-calculator/" in h and "verified 2026-10-20" in h
-    assert "blocked" in h and "Data status" in h          # unverified manufacturers explain why
+    assert "Data status" in h and "provisional" in h.lower()      # second-hand data is labelled
+    assert "Published requirements not evaluated" in h and "center-to-center or edge-to-edge" in h
 
 
 def test_html_marks_demo_and_unconditional_verdicts_never_for_unverified():
     h = render_html(ctx())
     assert "DEMONSTRATION profile" in h
     row = re.search(r"<b>PCBWay</b>.*?</tr>", h, re.S).group(0)
-    assert "Needs review" in row and "Compatible</span>" not in row
+    assert "Compatible</span>" not in row and ("Needs review" in row or "Conditionally compatible" in row) and "provisional" in row.lower()
 
 
 def test_issues_csv_columns_rows_and_roundtrip():
@@ -67,7 +68,7 @@ def test_issues_csv_columns_rows_and_roundtrip():
 def test_comparison_csv():
     rows = list(csv.DictReader(io.StringIO(render_comparison_csv(ctx()))))
     by = {r["manufacturer"]: r for r in rows}
-    assert by["SendCutSend"]["verdict"] == "INCOMPATIBLE" and by["PCBWay"]["verdict"] == "NEEDS_REVIEW"
+    assert by["SendCutSend"]["verdict"] == "INCOMPATIBLE" and by["PCBWay"]["verdict"] in ("NEEDS_REVIEW", "CONDITIONALLY_COMPATIBLE")
     assert by["DEMO Manufacturer (fictional)"]["demo_profile"] == "yes"
 
 

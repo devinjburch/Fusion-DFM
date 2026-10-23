@@ -75,3 +75,18 @@ def results_payload(part, warnings, request, directory=None):
     d = _flatten_report(rep.to_dict())
     d["part"] = part_summary(part, warnings)
     return d
+
+
+
+class ExportGuard:
+    """Same analysis exported twice (e.g. a double click) returns the files already written instead of duplicating them."""
+
+    def __init__(self):
+        self._stamp = None
+        self._paths = None
+
+    def lookup(self, stamp):
+        return self._paths if stamp is not None and stamp == self._stamp else None
+
+    def record(self, stamp, paths):
+        self._stamp, self._paths = stamp, paths

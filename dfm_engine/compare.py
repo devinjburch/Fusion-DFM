@@ -48,6 +48,8 @@ class ManufacturerVerdict:
     summary: str = ""
     research_status: str = ""
     research_notes: str = ""
+    restrictions: list = field(default_factory=list)   # published requirements that are not evaluated
+    provisional: bool = False                           # some evaluated rule uses provisional (second-hand) data
 
     def to_dict(self):
         return {"manufacturer_id": self.manufacturer_id, "manufacturer_name": self.manufacturer_name,
@@ -58,7 +60,8 @@ class ManufacturerVerdict:
                 "reasons": self.reasons, "warning_items": self.warning_items, "unresolved_items": self.unresolved_items, "corrections": self.corrections,
                 "reports": [r.to_dict() for r in self.reports], "demo": self.demo,
                 "profile_status": self.profile_status, "summary": self.summary,
-                "research_status": self.research_status, "research_notes": self.research_notes}
+                "research_status": self.research_status, "research_notes": self.research_notes,
+                "restrictions": self.restrictions, "provisional": self.provisional}
 
 
 @dataclass
@@ -128,6 +131,9 @@ def compare(parts, profiles: list, targets: Optional[list] = None) -> Comparison
             coverage_gaps=sorted({g for r in reports for g in r.coverage_gaps}), reasons=reasons, warning_items=warning_items,
             unresolved_items=unresolved_items, corrections=corrections, reports=reports, demo=demo,
             profile_status=prof["profile_status"], summary=extra or VERDICT_TEXT[verdict],
-            research_status=(prof.get("research") or {}).get("status", ""), research_notes=(prof.get("research") or {}).get("notes", ""))
+            research_status=(prof.get("research") or {}).get("status", ""), research_notes=(prof.get("research") or {}).get("notes", ""),
+            restrictions=[{"id": r["id"], "text": r["text"], "source_url": (r.get("source") or {}).get("url", "")}
+                          for r in next(p for p in prof["processes"] if p["id"] == pid).get("restrictions", [])],
+            provisional=any(x.provisional and x.status != Status.SKIPPED for rep in reports for x in rep.results))
         comp.entries.append(entry)
     return comp

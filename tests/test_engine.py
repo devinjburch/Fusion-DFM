@@ -5,7 +5,8 @@ from dfm_engine.profile import DEFAULT_DIR
 DEMO = load_profile(os.path.join(DEFAULT_DIR, "demo.json"))
 # Phase 1 SendCutSend profile (schema v1), kept as a fixture: proves backward compatibility of the engine.
 SCS = load_profile(os.path.join(os.path.dirname(__file__), "fixtures", "phase1_sendcutsend.json"))
-PCBWAY = load_profile(os.path.join(DEFAULT_DIR, "pcbway.json"))
+# Phase 1 unverified PCBWay stub (no data): the guarantee "an unverified profile never decides anything" is tested against it.
+PCBWAY = load_profile(os.path.join(os.path.dirname(__file__), "fixtures", "phase1_pcbway_unverified.json"))
 P = "sheet_metal_bending"
 
 

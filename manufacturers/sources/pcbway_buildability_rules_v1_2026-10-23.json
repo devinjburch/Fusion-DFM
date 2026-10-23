@@ -1,0 +1,455 @@
+{
+  "manufacturer": "PCBWay",
+  "version": "2026-10-23-research-v1",
+  "units_policy": "geometry in mm; explicit _in fields for source-imperial process rules",
+  "scope": "Initial checked subset of public sheet metal/flatbed cutting/hardware design guidelines; not a comprehensive or certified capabilities database",
+  "severity_semantics": {
+    "error": "file/geometry violation in stated process",
+    "warning": "published recommendation not met",
+    "advisory": "preferable design guidance",
+    "review": "requires engineer review",
+    "info": "calculated information"
+  },
+  "sources": {
+    "bending": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+    "cutting": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+    "hardware": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+    "forming": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_DFM_Guide_to_Prevent_Warping_Tearing_and_Bending_Deformation_5c476b7f.html"
+  },
+  "rules": [
+    {
+      "id": "PCB-BEND-001",
+      "category": "bending",
+      "metric": "minimum_finished_part_dimension_mm",
+      "operator": ">=",
+      "threshold": 3,
+      "unit": "mm",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Minimum finished part 3 by 3 mm; evaluate each planar dimension",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-BEND-002",
+      "category": "bending",
+      "metric": "flange_length_mm",
+      "operator": ">=",
+      "threshold": "4 * thickness_mm",
+      "unit": "mm",
+      "severity": "warning",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Standard minimum bend height; smaller may be possible under special conditions",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-BEND-003",
+      "category": "bending",
+      "metric": "inside_bend_radius_mm",
+      "operator": "manual_review",
+      "threshold": null,
+      "unit": "mm",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Depends on material grade, temper, thickness, grain orientation and tooling; do not use universal R>=T",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-BEND-004",
+      "category": "bending",
+      "metric": "feature_to_bend_line_clearance_mm",
+      "operator": ">=",
+      "threshold": "2 * thickness_mm",
+      "unit": "mm",
+      "severity": "warning",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Initial bend-line clearance guideline; measure from feature boundary and review bend tangent geometry",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-BEND-005",
+      "category": "bending",
+      "metric": "bend_allowance_mm",
+      "operator": "formula",
+      "threshold": "pi*(inside_radius_mm + k_factor*thickness_mm)*bend_angle_deg/180",
+      "unit": "mm",
+      "severity": "info",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Flat pattern calculation, not a pass/fail threshold",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-SHEET-STEEL",
+      "category": "stock",
+      "metric": "flat_pattern_envelope_mm",
+      "operator": "fits_rectangle",
+      "threshold": [
+        1500,
+        3000
+      ],
+      "unit": "mm",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Published raw-stock maximum; allows 90 degree rotation and requires 5mm margin each side for cutting",
+      "conditions": {
+        "material_family": "steel"
+      },
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-SHEET-STAINLESS_STEEL",
+      "category": "stock",
+      "metric": "flat_pattern_envelope_mm",
+      "operator": "fits_rectangle",
+      "threshold": [
+        1500,
+        3000
+      ],
+      "unit": "mm",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Published raw-stock maximum; allows 90 degree rotation and requires 5mm margin each side for cutting",
+      "conditions": {
+        "material_family": "stainless_steel"
+      },
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-SHEET-ALUMINUM",
+      "category": "stock",
+      "metric": "flat_pattern_envelope_mm",
+      "operator": "fits_rectangle",
+      "threshold": [
+        1220,
+        2440
+      ],
+      "unit": "mm",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Published raw-stock maximum; allows 90 degree rotation and requires 5mm margin each side for cutting",
+      "conditions": {
+        "material_family": "aluminum"
+      },
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-SHEET-TITANIUM",
+      "category": "stock",
+      "metric": "flat_pattern_envelope_mm",
+      "operator": "fits_rectangle",
+      "threshold": [
+        1220,
+        2440
+      ],
+      "unit": "mm",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Published raw-stock maximum; allows 90 degree rotation and requires 5mm margin each side for cutting",
+      "conditions": {
+        "material_family": "titanium"
+      },
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-SHEET-COPPER",
+      "category": "stock",
+      "metric": "flat_pattern_envelope_mm",
+      "operator": "fits_rectangle",
+      "threshold": [
+        600,
+        1500
+      ],
+      "unit": "mm",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Published raw-stock maximum; allows 90 degree rotation and requires 5mm margin each side for cutting",
+      "conditions": {
+        "material_family": "copper"
+      },
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-STOCK-EDGE",
+      "category": "stock",
+      "metric": "nesting_margin_mm",
+      "operator": ">=",
+      "threshold": 5,
+      "unit": "mm",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Per sheet edge when cutting stock",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-BEND-006",
+      "category": "bending",
+      "metric": "bend_angle_deg",
+      "operator": "manual_review",
+      "threshold": null,
+      "unit": "degrees",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "notes": "Special/near-flat angles and tooling access require process interpretation; article cites bends below 5 degrees and included angles exceeding 130 degrees",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-FORM-001",
+      "category": "bending",
+      "metric": "flange_support_coverage_fraction",
+      "operator": ">=",
+      "threshold": 1.0,
+      "unit": "ratio",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_DFM_Guide_to_Prevent_Warping_Tearing_and_Bending_Deformation_5c476b7f.html",
+      "notes": "For 0.187 or 0.250 inch sheet: both flanges require full bend-length support",
+      "conditions": {
+        "thickness_in": [
+          0.187,
+          0.25
+        ]
+      },
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-CUT-001",
+      "category": "file_validation",
+      "metric": "solid_body_count",
+      "operator": "==",
+      "threshold": 1,
+      "unit": "count",
+      "severity": "error",
+      "source_url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "notes": "For formed sheet STEP submissions; not a universal CNC assembly rule",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-CUT-002",
+      "category": "file_validation",
+      "metric": "is_closed_profile",
+      "operator": "==",
+      "threshold": true,
+      "unit": "bool",
+      "severity": "error",
+      "source_url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "notes": "2D cutting profiles should form closed outlines",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-CUT-003",
+      "category": "file_validation",
+      "metric": "has_duplicate_cut_edges",
+      "operator": "==",
+      "threshold": false,
+      "unit": "bool",
+      "severity": "error",
+      "source_url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "notes": "Duplicate and overlapping lines can cause duplicate cutting",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-CUT-004",
+      "category": "file_validation",
+      "metric": "has_pre_nested_3d_parts",
+      "operator": "==",
+      "threshold": false,
+      "unit": "bool",
+      "severity": "error",
+      "source_url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "notes": "3D STEP, IGES, SLDPRT assemblies should be uploaded as individual parts",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-CUT-005",
+      "category": "cnc_routing",
+      "metric": "min_part_dimension_mm",
+      "operator": ">=",
+      "threshold": 2,
+      "unit": "mm",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "notes": "General CNC routing minimum; specific material constraints vary",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-CUT-006",
+      "category": "cnc_routing",
+      "metric": "max_part_dimension_mm",
+      "operator": "<=",
+      "threshold": 1000,
+      "unit": "mm",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "notes": "General CNC routing upper dimension; engineer review may differ",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-CUT-007",
+      "category": "cnc_routing",
+      "metric": "minimum_diameter_mm",
+      "operator": ">=",
+      "threshold": 0.3,
+      "unit": "mm",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "notes": "General CNC routing diameter lower bound; process-specific",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-CUT-008",
+      "category": "cnc_routing",
+      "metric": "internal_corner_radius_in",
+      "operator": ">=",
+      "threshold": 0.063,
+      "unit": "in",
+      "severity": "warning",
+      "source_url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "notes": "Routed internal corners cannot be sharp; depends on bit size",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-CUT-009",
+      "category": "cnc_routing",
+      "metric": "dogbone_diameter_in",
+      "operator": ">=",
+      "threshold": "tool_bit_diameter_in + 0.005",
+      "unit": "in",
+      "severity": "warning",
+      "source_url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "notes": "For dogbone relief on square mating pockets",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-CUT-010",
+      "category": "cnc_routing",
+      "metric": "perforation_removed_area_fraction",
+      "operator": "<=",
+      "threshold": 0.5,
+      "unit": "ratio",
+      "severity": "warning",
+      "source_url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "notes": "Flatbed routing skeletal or perforated parts",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-CUT-011",
+      "category": "cnc_routing",
+      "metric": "tab_placement_vertex_spacing_in",
+      "operator": ">=",
+      "threshold": 0.4,
+      "unit": "in",
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "notes": "Minimum edge span for holding tab placement",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-HW-001",
+      "category": "hardware",
+      "metric": "hole_center_to_edge_mm",
+      "operator": ">=",
+      "threshold": "1.5 * mounting_hole_diameter_mm",
+      "unit": "mm",
+      "severity": "warning",
+      "source_url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "notes": "General rule of thumb; override with exact hardware manufacturer specs",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-HW-002",
+      "category": "hardware",
+      "metric": "hole_center_to_edge_mm",
+      "operator": ">=",
+      "threshold": "2 * mounting_hole_diameter_mm",
+      "unit": "mm",
+      "severity": "advisory",
+      "source_url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "notes": "Preferred high load / thin sheet condition",
+      "conditions": {
+        "high_load_or_thin_sheet": true
+      },
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-HW-003",
+      "category": "hardware",
+      "metric": "adjacent_same_hardware_center_spacing_mm",
+      "operator": ">=",
+      "threshold": "3 * mounting_hole_diameter_mm",
+      "unit": "mm",
+      "severity": "warning",
+      "source_url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "notes": "Same fastener family; actual tooling envelope may govern",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-HW-004",
+      "category": "hardware",
+      "metric": "hardware_center_to_bend_tangent_mm",
+      "operator": ">=",
+      "threshold": "inside_radius_mm + thickness_mm + hardware_margin_mm",
+      "unit": "mm",
+      "severity": "warning",
+      "source_url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "notes": "Margin must be determined from hardware flange and tooling",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-HW-005",
+      "category": "hardware",
+      "metric": "hardware_center_to_bend_line_mm",
+      "operator": ">=",
+      "threshold": "2*thickness_mm + inside_radius_mm + 3",
+      "unit": "mm",
+      "severity": "advisory",
+      "source_url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "notes": "Alternative published typical clearance, uses millimeters",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    },
+    {
+      "id": "PCB-HW-006",
+      "category": "hardware",
+      "metric": "hardware_compatibility",
+      "operator": "manual_review",
+      "threshold": null,
+      "unit": null,
+      "severity": "review",
+      "source_url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "notes": "Check fastener hardness, sheet hardness and manufacturer part datasheet",
+      "conditions": {},
+      "status": "published_guideline_requires_manufacturer_validation"
+    }
+  ],
+  "unresolved": [
+    "Minimum hole size by material and cutting process",
+    "Sheet thickness catalog by alloy and grade",
+    "CNC tolerance tables",
+    "Countersink and counterbore exact rules",
+    "Tapping thread engagement per material",
+    "Bend radius per alloy/temper/thickness",
+    "PEM hardware exact vendor catalog dimensions",
+    "Precise interpretation of bend-line vs bend-tangent measurements",
+    "Laser kerf and cut minimum per material"
+  ],
+  "notice": "Not PCBWay approved; validate applicability and site changes before production."
+}

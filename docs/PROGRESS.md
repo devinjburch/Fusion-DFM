@@ -30,3 +30,11 @@ Branch `feature/phase2-manufacturing` (from `feature/phase1-mvp`; Phase 1 unchan
 - [x] `scripts/field_report.py` redaction: URL-encoded home path, doubled-backslash (repr) home path, design names in export file names and logs (case-insensitive)
 - [ ] Not changed: demo profile's `demo.hole_bend` stays blocking (fictional profile; Phase 1 behaviour preserved). Flip `consequence` there if you want parity.
 - [ ] Idea from round 5: disable the Export button while a write is in progress (two identical exports were written 2 s apart)
+
+## Round 6 follow-ups (2026-10-23)
+- [x] Unchecked non-blocking rules stay NEEDS_REVIEW; WARNING only for measured violations/borderline (see PROFILES.md)
+- [x] PCBWay and Xometry profiles built from the owner-supplied research snapshot (provisional, non-blocking), numbers asserted against the saved sources
+- [x] Duplicate-export guard: same analysis exports once (button disabled while writing; repeat returns existing files)
+- [x] Compare mode defaults its material to the Single tab's material choice when none is picked
+- [ ] Still to do on the PC: Compare tab with Mild Steel set (Hole 1/4 under "Warnings", click to highlight); export of a single analysis with warnings; TESTING.md steps 4-5 (cutouts, assembly)
+- [ ] Re-check PCBWay/Xometry rules against their pages and drop `provisional` where confirmed

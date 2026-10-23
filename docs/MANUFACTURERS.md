@@ -27,13 +27,35 @@ sizes (stated to live on each material page, which are JavaScript-rendered/not r
 a definition of "max bend angle 130°". Hence the profile reports coverage gap `hole_edge_distance`, and comparison verdicts for SendCutSend are
 at best CONDITIONALLY_COMPATIBLE.
 
-## PCBWay — unverified (blocked)
-`https://www.pcbway.com`: requests failed (proxy 403 with curl; DNS resolution failure from the web-fetch tool) on 2026-10-20. Not retried.
-Profile has no materials and all rules disabled; results are NEEDS_REVIEW. To complete: save the official sheet-metal capabilities/design-guide pages
-(HTML or PDF) into the repo (or paste the text) and enter values with `source.url` + `source.date_verified`.
+## PCBWay — provisional (owner-supplied research snapshot, 2026-10-23)
+Source: `manufacturers/sources/pcbway_buildability_rules_v1_2026-10-23.json` + `manufacturing_buildability_reference_2026-10-23.md` (supplied by the project owner, compiled by an external research session;
+this project's build environment cannot reach pcbway.com). The snapshot itself says its PCBWay entries are provisional and must be rechecked against the primary pages, so **every rule is flagged
+`provisional` and non-blocking**: it can raise warnings / review items and support "conditionally compatible", but can never fail a part or establish "compatible" (provisional rules do not count toward
+requirement coverage). Built by `scripts/build_pcbway_xometry_profiles.py`, which reads each threshold from the saved JSON (no retyping) and is checked by tests.
+| Rule | Value (source rule) | Consequence |
+|---|---|---|
+| `pcb.min_flange` | flange >= 4 x thickness, measured from the bend tangent line (datum unpublished; conservative) (PCB-BEND-002) | warning |
+| `pcb.feature_to_bend` | hole/cutout edge to bend line >= 2 x thickness, measured to the bend centerline (PCB-BEND-004) | warning |
+| `pcb.min_part` | finished part >= 3 x 3 mm, compared with the flat size (PCB-BEND-001) | review |
+| `pcb.stock.<family>` | raw stock minus 5 mm margin per edge: steel/stainless 2990 x 1490, aluminum/titanium 2430 x 1210, copper 1490 x 590 mm (PCB-SHEET-*, PCB-STOCK-EDGE); raw-stock limit, not a finished-part guarantee | review |
+| `cnc_routing` process | min part 2 mm, max part 1000 mm, min diameter 0.3 mm (PCB-CUT-005..007); applicability to metal not stated | review |
+Not evaluated (listed under "Published requirements not evaluated"): hardware insertion rules (PCB-HW-*), file validation (single solid body, no pre-nested parts, closed profiles), routing corner/dogbone/perforation/tab rules, bend angle review, flange support for 0.187/0.250 in.
+**Disabled, conflict preserved:** a second PCBWay article states minimum flange = inside radius + 4T (stricter than 4T); recorded as `pcb.min_flange_radius_plus_4t`, not chosen. No universal minimum bend radius is applied (PCBWay says it depends on material, temper, thickness, grain and tooling).
+Unresolved per the snapshot: min hole size by material/process, thickness catalog by alloy, CNC tolerance tables, countersink/counterbore, tapping, bend radius per alloy/temper, PEM dimensions, bend-line vs tangent datum, laser kerf.
 
-## Xometry — unverified (blocked)
-`https://www.xometry.com`: same failure modes as above. Same completion steps.
+## Xometry — provisional (owner-supplied research snapshot, 2026-10-23)
+Source: `manufacturers/sources/xometry_buildability_rules_v1_2026-10-23.json` (same provenance and treatment as PCBWay; rules are multiples of material thickness so they apply to any material).
+| Rule | Value (source rule) | Consequence |
+|---|---|---|
+| `xom.min_bend_radius` | inside radius >= 1 x thickness, an inside-radius recommendation (XOM-SM-001) | warning |
+| `xom.hole_edge` | hole edge to part edge >= 2 x thickness, edge-to-edge (XOM-SM-002) | warning |
+| `xom.thickness_typical` | typical sheet 0.024-0.250 in; thinner/thicker by review (XOM-CAP-001/002) | review |
+| `xom.max_blank` | nominal 5 x 10 ft blank (60 x 120 in); larger on request (XOM-CAP-003/004) | review |
+| tolerance | automatic quoting as tight as +/-0.005 in for some dimensions (XOM-CAP-005) | recorded only |
+Not automated, recorded as restrictions: hole-to-hole 6T (center vs edge unstated; publisher says not to automate), feature-to-countersink 8T, countersink depth 0.6T, relief cuts 1T, corner fillet 0.5T. `xom.bend_to_hole` (6T, bend-edge datum ambiguous) is a disabled rule. CNC tips (XOM-CNC-001..008) are restrictions of a separate `cnc_machining` process (no rules).
+
+**Promoting to verified:** re-check a rule against the cited page, then drop `provisional` (and set a real `date_verified`); rules with consequence `warning`/`review` stay non-blocking unless you change them.
+The supplied `.docx` is the same content as the `.md` and is not stored.
 
 ## Demo — fictional
 `manufacturers/demo.json`: invented values, labelled DEMO everywhere; excluded from ranking by default in comparisons.

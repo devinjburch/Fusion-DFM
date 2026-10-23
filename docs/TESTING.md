@@ -25,3 +25,9 @@ Install per [INSTALL.md](INSTALL.md) (re-run `python scripts\install.py`, restar
 7. Logs: `~/FusionDFM/logs/fusion_dfm.log` records face census, classification and ignored loops; send it with any surprise.
 
 8. Package the results: `python scripts\field_report.py --run-tests` and commit the file (see [FIELD_TESTING.md](FIELD_TESTING.md)).
+
+## Round 7 checklist (after pulling the round-6 follow-up commit)
+1. Compare tab → select **Mild Steel** (or leave it empty after choosing Mild Steel on the Single tab) → *Compare*: SendCutSend should show Hole 1/Hole 4 under *Warnings – non-blocking* ("Hole 4: too close to bend"); click one → the hole highlights.
+2. PCBWay and Xometry now show *Conditionally compatible* (provisional) or *Needs review* — never *Compatible* or *Incompatible*. Open "Published requirements not evaluated".
+3. *Analyze* a single manufacturer, then click *Export* twice quickly: only one set of files is written; the second click says "Already exported for this analysis".
+4. Choose a material the manufacturer does not list (or leave Steel on SendCutSend): the hole-to-bend row must be *Needs review* titled "…could not be checked", not a warning.

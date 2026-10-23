@@ -60,3 +60,19 @@ def test_fusion_modules_compile():
     for f in ("app_main", "extraction", "highlight", "smoke", "FusionDFM"):
         py_compile.compile(os.path.join(ROOT, "fusion_addin", f + ".py"), doraise=True)
     py_compile.compile(os.path.join(ROOT, "smoke_test", "FusionDFMSmoke.py"), doraise=True)
+
+
+def test_export_guard_returns_existing_files_for_the_same_analysis():
+    from fusion_addin.bridge import ExportGuard
+    g = ExportGuard()
+    assert g.lookup(1) is None and g.lookup(None) is None
+    g.record(1, {"html": "a.html"})
+    assert g.lookup(1) == {"html": "a.html"}          # double click on the same analysis: no second file
+    assert g.lookup(2) is None                        # a new analysis may be exported again
+    g.record(2, {"html": "b.html"})
+    assert g.lookup(1) is None and g.lookup(2) == {"html": "b.html"}
+
+
+def test_app_main_wires_the_guard_and_stamps_every_analysis():
+    src = open(os.path.join(ROOT, "fusion_addin", "app_main.py")).read()
+    assert src.count("_bump()") >= 3 and "_guard.lookup(_stamp)" in src and "_guard.record(_stamp" in src

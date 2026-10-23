@@ -46,12 +46,51 @@ def test_real_profiles_tables_tolerances_restrictions_are_sourced(p):
             assert t["source"]["url"].startswith("https://") and DATE.match(t["source"]["date_verified"]), t["id"]
 
 
-def test_unverified_profiles_have_no_enabled_rules_and_record_blocker():
+def test_pcbway_xometry_are_provisional_second_hand_data_with_provenance():
     for mid in ("pcbway", "xometry"):
         p = BY_ID[mid]
-        assert p["profile_status"] == "unverified" and p["research"]["status"] == "blocked"
-        assert not any(r["enabled"] for pr in p["processes"] for r in pr["rules"])
-        assert not any(pr["materials"] for pr in p["processes"])   # no invented materials
+        assert p["profile_status"] == "partially_verified" and p["research"]["status"] == "partial"
+        assert "owner" in p["research"]["notes"].lower() or "supplied" in p["research"]["notes"].lower()
+        for proc in p["processes"]:
+            for r in proc["rules"]:
+                if r["enabled"]:
+                    assert r["provisional"] and r["consequence"] in ("warning", "review"), r["id"]      # never blocking
+                    assert r["source"]["provenance"] and r["source"]["snapshot"] and r["source"]["source_rule_ids"], r["id"]
+                    assert r["notes"], r["id"]
+            for rs in proc.get("restrictions", []):
+                assert rs["modelled"] is False and rs["source"]["url"].startswith("https://"), rs["id"]
+
+
+def test_pcbway_xometry_numbers_match_the_saved_owner_supplied_sources():
+    base = os.path.join(DEFAULT_DIR, "sources")
+    xs = {r["id"]: r for r in json.load(open(os.path.join(base, "xometry_buildability_rules_v1_2026-10-23.json")))["rules"]}
+    ps = {r["id"]: r for r in json.load(open(os.path.join(base, "pcbway_buildability_rules_v1_2026-10-23.json")))["rules"]}
+    for mid, src in (("xometry", xs), ("pcbway", ps)):
+        for proc in BY_ID[mid]["processes"]:
+            for r in proc["rules"] + proc.get("restrictions", []) + proc.get("tolerances", []):
+                for sid in r["source"]["source_rule_ids"]:
+                    assert sid in src, (r["id"], sid)
+                    assert src[sid]["source_url"] == r["source"]["url"], (r["id"], sid)
+    rule = lambda mid, rid: next(r for pr in BY_ID[mid]["processes"] for r in pr["rules"] if r["id"] == rid)
+    assert rule("xometry", "xom.min_bend_radius")["parameters"] == {"min_ratio_to_thickness": 1}
+    assert rule("xometry", "xom.hole_edge")["parameters"] == {"min_ratio_to_thickness": 2}
+    assert rule("xometry", "xom.thickness_typical")["parameters"] == pytest.approx({"min_mm": 0.024 * 25.4, "max_mm": 0.25 * 25.4}, abs=1e-3)
+    assert rule("xometry", "xom.max_blank")["parameters"] == {"max_long_mm": 3048.0, "max_short_mm": 1524.0}
+    assert rule("pcbway", "pcb.min_flange")["parameters"]["min_ratio_to_thickness"] == 4.0
+    assert rule("pcbway", "pcb.feature_to_bend")["parameters"] == {"min_ratio_to_thickness": 2.0, "measure": "centerline"}
+    assert rule("pcbway", "pcb.stock.aluminum")["parameters"] == {"max_long_mm": 2430, "max_short_mm": 1210}     # 2440 x 1220 minus 5 mm per edge
+    assert rule("pcbway", "pcb.stock.copper")["parameters"] == {"max_long_mm": 1490, "max_short_mm": 590}
+
+
+def test_ambiguous_published_rules_are_not_automated():
+    xom = BY_ID["xometry"]["processes"][0]
+    ids = {r["id"] for r in xom["rules"] if r["enabled"]}
+    assert "xom.bend_to_hole" not in ids and not any("hole_to_hole" in i for i in ids)          # datum ambiguity: documented, disabled
+    text = " ".join(rs["text"] for rs in xom["restrictions"])
+    assert "center-to-center or edge-to-edge" in text and "countersink" in text
+    pcb = BY_ID["pcbway"]["processes"][0]
+    assert not next(r for r in pcb["rules"] if r["id"] == "pcb.min_bend_radius")["enabled"]       # no universal R >= T for PCBWay
+    assert not next(r for r in pcb["rules"] if r["id"] == "pcb.min_flange_radius_plus_4t")["enabled"]   # conflicting source preserved, not chosen
 
 
 def test_demo_profile_is_labelled_and_not_real():

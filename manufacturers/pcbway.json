@@ -5,85 +5,650 @@
   "name": "PCBWay",
   "website": "https://www.pcbway.com"
  },
- "profile_status": "unverified",
- "description": "No PCBWay requirements are entered. Official documentation could not be retrieved from the build environment, so every rule is disabled and no PASS/FAIL can be produced from this profile.",
+ "profile_status": "partially_verified",
+ "description": "Published PCBWay sheet-metal/flatbed-cutting/hardware guidelines from an owner-supplied research snapshot (2026-10-23). Second-hand and provisional (the snapshot itself says entries need checking against the primary pages): every rule is non-blocking and can never produce a 'compatible' verdict.",
  "research": {
-  "status": "blocked",
-  "attempted": "2026-10-20",
-  "notes": "Requests to https://www.pcbway.com failed (proxy 403 via curl; DNS resolution failure via the web-fetch tool). Not retried. To complete this profile: supply the official sheet-metal design guide / capabilities pages (saved HTML or PDF) and enter values with source.url and source.date_verified."
+  "status": "partial",
+  "attempted": "2026-10-23",
+  "notes": "Data supplied by the project owner from an external research session; this project's build environment could not reach pcbway.com. Not a comprehensive or certified capabilities database; not PCBWay-approved. Unresolved: minimum hole size by material/process, thickness catalog by alloy, CNC tolerance tables, countersink/counterbore rules, tapping engagement, bend radius per alloy/temper, PEM catalog dimensions, bend-line vs bend-tangent datum, laser kerf per material."
  },
  "processes": [
   {
-   "id": "sheet_metal_fabrication",
-   "name": "Sheet metal fabrication",
+   "id": "sheet_metal_bending",
+   "name": "Sheet metal bending (published guidelines)",
    "thickness_match_tolerance_mm": 0.05,
-   "materials": [],
-   "tolerances": [],
-   "restrictions": [],
-   "notes": [],
-   "rules": [
+   "materials": [
     {
-     "id": "pcbway.min_bend_radius",
-     "type": "min_bend_radius",
-     "enabled": false,
-     "verified": false,
-     "severity": "ERROR",
-     "parameters": {},
-     "limitations": "Unverified: PCBWay documentation for 'Minimum bend radius' could not be retrieved."
+     "id": "steel",
+     "name": "Steel (carbon/mild)",
+     "aliases": [
+      "steel",
+      "carbon steel",
+      "mild steel"
+     ]
     },
     {
-     "id": "pcbway.min_flange_length",
+     "id": "stainless_steel",
+     "name": "Stainless steel",
+     "aliases": [
+      "stainless"
+     ]
+    },
+    {
+     "id": "aluminum",
+     "name": "Aluminum",
+     "aliases": [
+      "aluminum",
+      "aluminium"
+     ]
+    },
+    {
+     "id": "titanium",
+     "name": "Titanium",
+     "aliases": [
+      "titanium"
+     ]
+    },
+    {
+     "id": "copper",
+     "name": "Copper",
+     "aliases": [
+      "copper"
+     ]
+    }
+   ],
+   "tolerances": [],
+   "restrictions": [
+    {
+     "id": "pcb.r.bend-006",
+     "text": "Bend angles below 5 degrees or included angles above 130 degrees need manual review (special/near-flat bends, tooling access); no numeric rule is published.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-BEND-006"
+      ],
+      "note": "Special/near-flat angles and tooling access require process interpretation; article cites bends below 5 degrees and included angles exceeding 130 degrees"
+     }
+    },
+    {
+     "id": "pcb.r.form-001",
+     "text": "0.187 and 0.250 in sheet: both flanges need full bend-length support; support coverage is not extracted.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_DFM_Guide_to_Prevent_Warping_Tearing_and_Bending_Deformation_5c476b7f.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-FORM-001"
+      ],
+      "note": "For 0.187 or 0.250 inch sheet: both flanges require full bend-length support"
+     }
+    },
+    {
+     "id": "pcb.r.cut-001",
+     "text": "Formed-sheet STEP submissions must contain a single solid body.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-CUT-001"
+      ],
+      "note": "For formed sheet STEP submissions; not a universal CNC assembly rule"
+     }
+    },
+    {
+     "id": "pcb.r.cut-004",
+     "text": "3D assemblies / pre-nested parts must be uploaded as individual parts.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-CUT-004"
+      ],
+      "note": "3D STEP, IGES, SLDPRT assemblies should be uploaded as individual parts"
+     }
+    },
+    {
+     "id": "pcb.r.cut-002",
+     "text": "2D cutting profiles must be closed outlines.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-CUT-002"
+      ],
+      "note": "2D cutting profiles should form closed outlines"
+     }
+    },
+    {
+     "id": "pcb.r.cut-003",
+     "text": "No duplicate/overlapping cut lines in 2D files.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-CUT-003"
+      ],
+      "note": "Duplicate and overlapping lines can cause duplicate cutting"
+     }
+    },
+    {
+     "id": "pcb.r.hw-001",
+     "text": "Hardware: hole center to edge >= 1.5x mounting-hole diameter (rule of thumb; use hardware datasheet).",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-HW-001"
+      ],
+      "note": "General rule of thumb; override with exact hardware manufacturer specs"
+     }
+    },
+    {
+     "id": "pcb.r.hw-002",
+     "text": "Hardware: hole center to edge >= 2x diameter for high-load/thin sheet (advisory).",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-HW-002"
+      ],
+      "note": "Preferred high load / thin sheet condition"
+     }
+    },
+    {
+     "id": "pcb.r.hw-003",
+     "text": "Hardware: adjacent same-hardware center spacing >= 3x diameter.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-HW-003"
+      ],
+      "note": "Same fastener family; actual tooling envelope may govern"
+     }
+    },
+    {
+     "id": "pcb.r.hw-004",
+     "text": "Hardware: center to bend tangent >= inside radius + thickness + hardware margin.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-HW-004"
+      ],
+      "note": "Margin must be determined from hardware flange and tooling"
+     }
+    },
+    {
+     "id": "pcb.r.hw-005",
+     "text": "Hardware: center to bend line >= 2x thickness + inside radius + 3 mm (advisory).",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-HW-005"
+      ],
+      "note": "Alternative published typical clearance, uses millimeters"
+     }
+    },
+    {
+     "id": "pcb.r.hw-006",
+     "text": "Hardware compatibility (fastener vs sheet hardness, vendor datasheet) needs manual review.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Hardware-insertion/Hardware_Installation_Design_Guidelines_15aa42f5.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-HW-006"
+      ],
+      "note": "Check fastener hardness, sheet hardness and manufacturer part datasheet"
+     }
+    }
+   ],
+   "notes": [
+    "Bend allowance (info only): BA = pi * (inside_radius + k * thickness) * angle / 180.",
+    "Steel/aluminum/titanium/copper stock limits are raw sheet sizes, not maximum finished part sizes."
+   ],
+   "rules": [
+    {
+     "id": "pcb.min_part",
+     "type": "min_part_dimensions",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "review",
+     "parameters": {
+      "min_long_mm": 3,
+      "min_short_mm": 3
+     },
+     "notes": "Minimum finished part 3 x 3 mm. Compared with the flat-pattern size (a proxy for the finished part).",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-BEND-001"
+      ],
+      "note": "Minimum finished part 3 by 3 mm; evaluate each planar dimension"
+     }
+    },
+    {
+     "id": "pcb.min_flange",
+     "type": "min_flange_length",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "warning",
+     "parameters": {
+      "min_ratio_to_thickness": 4.0,
+      "measure": "tangent"
+     },
+     "notes": "Standard minimum bend height 4x thickness (smaller possible under special conditions). The datum is not published; the add-in measures from the bend tangent line, which is conservative. A separate PCBWay article states inside radius + 4T, which is stricter; both are preserved (see pcb.min_flange_radius_plus_4t) and not silently reconciled.",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-BEND-002"
+      ],
+      "note": "Standard minimum bend height; smaller may be possible under special conditions"
+     }
+    },
+    {
+     "id": "pcb.feature_to_bend",
+     "type": "min_hole_bend_distance",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "warning",
+     "parameters": {
+      "min_ratio_to_thickness": 2.0,
+      "measure": "centerline"
+     },
+     "notes": "Initial clearance guideline of 2x thickness from the hole/cutout edge to the bend line; larger clearance may be needed. Measured to the bend centerline (tangent distance plus half the bend zone).",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-BEND-004"
+      ],
+      "note": "Initial bend-line clearance guideline; measure from feature boundary and review bend tangent geometry"
+     }
+    },
+    {
+     "id": "pcb.min_flange_radius_plus_4t",
      "type": "min_flange_length",
      "enabled": false,
      "verified": false,
-     "severity": "ERROR",
+     "severity": "WARNING",
      "parameters": {},
-     "limitations": "Unverified: PCBWay documentation for 'Minimum flange length' could not be retrieved."
+     "limitations": "A separate PCBWay article states minimum flange = inside bend radius + 4T. It conflicts with the 4T guidance and its datum is unclear, so it is recorded but not evaluated.",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-BEND-002"
+      ],
+      "note": "Standard minimum bend height; smaller may be possible under special conditions"
+     }
     },
     {
-     "id": "pcbway.min_hole_diameter",
-     "type": "min_hole_diameter",
+     "id": "pcb.min_bend_radius",
+     "type": "min_bend_radius",
      "enabled": false,
      "verified": false,
-     "severity": "ERROR",
+     "severity": "WARNING",
      "parameters": {},
-     "limitations": "Unverified: PCBWay documentation for 'Minimum hole/cutout size' could not be retrieved."
+     "limitations": "PCBWay states the minimum radius depends on material grade, temper, thickness, grain direction and tooling; do not apply a universal R >= T.",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-BEND-003"
+      ],
+      "note": "Depends on material grade, temper, thickness, grain orientation and tooling; do not use universal R>=T"
+     }
     },
     {
-     "id": "pcbway.min_hole_edge_distance",
-     "type": "min_hole_edge_distance",
-     "enabled": false,
-     "verified": false,
-     "severity": "ERROR",
-     "parameters": {},
-     "limitations": "Unverified: PCBWay documentation for 'Minimum hole-to-edge distance' could not be retrieved."
-    },
-    {
-     "id": "pcbway.min_hole_bend_distance",
-     "type": "min_hole_bend_distance",
-     "enabled": false,
-     "verified": false,
-     "severity": "ERROR",
-     "parameters": {},
-     "limitations": "Unverified: PCBWay documentation for 'Minimum hole-to-bend distance' could not be retrieved."
-    },
-    {
-     "id": "pcbway.max_part_dimensions",
+     "id": "pcb.stock.steel",
      "type": "max_part_dimensions",
-     "enabled": false,
-     "verified": false,
-     "severity": "ERROR",
-     "parameters": {},
-     "limitations": "Unverified: PCBWay documentation for 'Maximum flat part size' could not be retrieved."
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "review",
+     "parameters": {
+      "max_long_mm": 2990,
+      "max_short_mm": 1490
+     },
+     "notes": "Published raw-stock maximum 3000 x 1500 mm minus a 5 mm cutting margin on each side (= 2990 x 1490 mm); a flat pattern may be rotated 90 degrees. This is a raw-stock limit, not a finished-part guarantee.",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-SHEET-STEEL",
+       "PCB-STOCK-EDGE"
+      ],
+      "note": "Published raw-stock maximum; allows 90 degree rotation and requires 5mm margin each side for cutting; Per sheet edge when cutting stock"
+     },
+     "applies_to": {
+      "materials": [
+       "steel"
+      ]
+     }
     },
     {
-     "id": "pcbway.thickness_range",
-     "type": "thickness_range",
-     "enabled": false,
-     "verified": false,
-     "severity": "ERROR",
-     "parameters": {},
-     "limitations": "Unverified: PCBWay documentation for 'Supported material thickness' could not be retrieved."
+     "id": "pcb.stock.stainless_steel",
+     "type": "max_part_dimensions",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "review",
+     "parameters": {
+      "max_long_mm": 2990,
+      "max_short_mm": 1490
+     },
+     "notes": "Published raw-stock maximum 3000 x 1500 mm minus a 5 mm cutting margin on each side (= 2990 x 1490 mm); a flat pattern may be rotated 90 degrees. This is a raw-stock limit, not a finished-part guarantee.",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-SHEET-STAINLESS_STEEL",
+       "PCB-STOCK-EDGE"
+      ],
+      "note": "Published raw-stock maximum; allows 90 degree rotation and requires 5mm margin each side for cutting; Per sheet edge when cutting stock"
+     },
+     "applies_to": {
+      "materials": [
+       "stainless_steel"
+      ]
+     }
+    },
+    {
+     "id": "pcb.stock.aluminum",
+     "type": "max_part_dimensions",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "review",
+     "parameters": {
+      "max_long_mm": 2430,
+      "max_short_mm": 1210
+     },
+     "notes": "Published raw-stock maximum 2440 x 1220 mm minus a 5 mm cutting margin on each side (= 2430 x 1210 mm); a flat pattern may be rotated 90 degrees. This is a raw-stock limit, not a finished-part guarantee.",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-SHEET-ALUMINUM",
+       "PCB-STOCK-EDGE"
+      ],
+      "note": "Published raw-stock maximum; allows 90 degree rotation and requires 5mm margin each side for cutting; Per sheet edge when cutting stock"
+     },
+     "applies_to": {
+      "materials": [
+       "aluminum"
+      ]
+     }
+    },
+    {
+     "id": "pcb.stock.titanium",
+     "type": "max_part_dimensions",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "review",
+     "parameters": {
+      "max_long_mm": 2430,
+      "max_short_mm": 1210
+     },
+     "notes": "Published raw-stock maximum 2440 x 1220 mm minus a 5 mm cutting margin on each side (= 2430 x 1210 mm); a flat pattern may be rotated 90 degrees. This is a raw-stock limit, not a finished-part guarantee.",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-SHEET-TITANIUM",
+       "PCB-STOCK-EDGE"
+      ],
+      "note": "Published raw-stock maximum; allows 90 degree rotation and requires 5mm margin each side for cutting; Per sheet edge when cutting stock"
+     },
+     "applies_to": {
+      "materials": [
+       "titanium"
+      ]
+     }
+    },
+    {
+     "id": "pcb.stock.copper",
+     "type": "max_part_dimensions",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "review",
+     "parameters": {
+      "max_long_mm": 1490,
+      "max_short_mm": 590
+     },
+     "notes": "Published raw-stock maximum 1500 x 600 mm minus a 5 mm cutting margin on each side (= 1490 x 590 mm); a flat pattern may be rotated 90 degrees. This is a raw-stock limit, not a finished-part guarantee.",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet_Metal/Sheet_Metal_Bending_Design_Guidelines_cbefb6cf.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-SHEET-COPPER",
+       "PCB-STOCK-EDGE"
+      ],
+      "note": "Published raw-stock maximum; allows 90 degree rotation and requires 5mm margin each side for cutting; Per sheet edge when cutting stock"
+     },
+     "applies_to": {
+      "materials": [
+       "copper"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "cnc_routing",
+   "name": "Flatbed / CNC routing (published guidelines)",
+   "thickness_match_tolerance_mm": 0.05,
+   "materials": [],
+   "tolerances": [],
+   "restrictions": [
+    {
+     "id": "pcb.r.cut-008",
+     "text": "Routed internal corners cannot be sharp: radius >= 0.063 in (depends on bit size)",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-CUT-008"
+      ],
+      "note": "Routed internal corners cannot be sharp; depends on bit size"
+     }
+    },
+    {
+     "id": "pcb.r.cut-009",
+     "text": "Dogbone relief diameter >= tool bit diameter + 0.005 in for square mating pockets",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-CUT-009"
+      ],
+      "note": "For dogbone relief on square mating pockets"
+     }
+    },
+    {
+     "id": "pcb.r.cut-010",
+     "text": "Perforated/skeletal flatbed parts: removed area <= 50%",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-CUT-010"
+      ],
+      "note": "Flatbed routing skeletal or perforated parts"
+     }
+    },
+    {
+     "id": "pcb.r.cut-011",
+     "text": "Holding-tab placement needs >= 0.4 in between edge vertices",
+     "modelled": false,
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-CUT-011"
+      ],
+      "note": "Minimum edge span for holding tab placement"
+     }
+    }
+   ],
+   "notes": [
+    "Applicability of routing limits to metal sheet is not stated by the source; verify before relying on them."
+   ],
+   "rules": [
+    {
+     "id": "pcb.route.min_part",
+     "type": "min_part_dimensions",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "review",
+     "parameters": {
+      "min_long_mm": 2,
+      "min_short_mm": 2
+     },
+     "notes": "General CNC-routing minimum part dimension; specific materials vary.",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-CUT-005"
+      ],
+      "note": "General CNC routing minimum; specific material constraints vary"
+     }
+    },
+    {
+     "id": "pcb.route.max_part",
+     "type": "max_part_dimensions",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "review",
+     "parameters": {
+      "max_long_mm": 1000,
+      "max_short_mm": 1000
+     },
+     "notes": "General CNC-routing upper dimension; engineer review may differ.",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-CUT-006"
+      ],
+      "note": "General CNC routing upper dimension; engineer review may differ"
+     }
+    },
+    {
+     "id": "pcb.route.min_hole",
+     "type": "min_hole_diameter",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "review",
+     "parameters": {
+      "min_mm": 0.3
+     },
+     "notes": "General CNC-routing minimum diameter; process-specific.",
+     "source": {
+      "url": "https://www.pcbway.com/blog/Sheet-Cutting/Sheet_Cutting_Design_Guidelines_b0e8981b.html",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (pcbway_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "PCB-CUT-007"
+      ],
+      "note": "General CNC routing diameter lower bound; process-specific"
+     }
     }
    ]
   }

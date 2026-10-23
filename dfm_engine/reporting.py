@@ -86,6 +86,8 @@ def render_html(ctx: dict) -> str:
         notes = e["verdict_text"]
         if e["coverage_gap_labels"]:
             notes += " Unverified: " + ", ".join(e["coverage_gap_labels"]) + "."
+        if e.get("provisional"):
+            notes += " Based on provisional (second-hand, unconfirmed) data."
         if e["demo"]:
             notes = "DEMO profile. " + notes
         o.append(f'<tr><td><b>{_e(e["manufacturer_name"])}</b><div class="src">{_e(e["process_id"])} · profile {_e(e["profile_status"])}</div></td>'
@@ -132,6 +134,13 @@ def render_html(ctx: dict) -> str:
                 o.append(f"<details><summary>Rules not checked - no verified data ({len(sk)})</summary>" + "".join(_issue_html(r) for r in sk) + "</details>")
             if not (fails or nrs or oks or sk):
                 o.append("<div class='src'>No rules applied.</div>")
+    # --- published requirements that are not evaluated
+    shown = [e for e in entries if e.get("restrictions")]
+    if shown:
+        o.append("<h2>Published requirements not evaluated by this tool</h2><div class='src'>Recorded from the manufacturer's documentation; check these manually.</div>")
+        for e in shown:
+            o.append(f"<h3>{_e(e['manufacturer_name'])}</h3><ul>" + "".join(
+                f'<li>{_e(r["text"])} <span class="src">[{_e(r["id"])}]</span></li>' for r in e["restrictions"]) + "</ul>")
     # --- sources
     srcs = {}
     for e in entries:

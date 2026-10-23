@@ -59,8 +59,8 @@ $('run').onclick=()=>{$('run').disabled=true;$('out').innerHTML='<div class="met
  send('run',{manufacturer_id:$('mfr').value,process_id:$('proc').value,material_id:$('mat').value})};
 $('runC').onclick=()=>{const ids=[...document.querySelectorAll('#mfrList input:checked')].map(x=>({id:x.value}));
  if(!ids.length){$('out').innerHTML='<div class="err">Select at least one manufacturer.</div>';return}
- $('runC').disabled=true;$('out').innerHTML='<div class="meta">Analyzing…</div>';send('compare',{manufacturers:ids,all_parts:$('allParts').checked,material_name:$('cmpMat').value})};
-$('export').onclick=()=>{$('exported').classList.remove('hidden');$('exported').textContent='Writing report…';send('export',{})};
+ $('runC').disabled=true;$('out').innerHTML='<div class="meta">Analyzing…</div>';send('compare',{manufacturers:ids,all_parts:$('allParts').checked,material_name:$('cmpMat').value||(($('mat').value&&$('mat').selectedOptions[0])?$('mat').selectedOptions[0].text:'')})};
+$('export').onclick=()=>{if($('export').disabled)return;$('export').disabled=true;$('exported').classList.remove('hidden');$('exported').textContent='Writing report…';send('export',{})};
 const sevOrder={ERROR:0,WARNING:1,INFO:2};
 function issue(r,part){const clickable=!!r.token;
  const corr=(r.corrections||[]).map(c=>`<div class="corr"><b>Proposed correction (${esc(c.confidence)}):</b> ${esc(c.summary)}${c.side_effects&&c.side_effects.length?' · side effects: '+esc(c.side_effects.join('; ')):''}</div>`).join('');
@@ -102,7 +102,9 @@ function renderCompare(d){const es=d.comparison.entries;let h='';
  ${e.reasons.length?`<details open><summary>Why not compatible (${e.reasons.length})</summary>${e.reports.flatMap(r=>r.results.filter(x=>x.status==='FAIL').map(x=>issue(x,names.length>1?r.part_name:''))).join('')}</details>`:''}
  ${(e.warning_items||[]).length?`<details open><summary>Warnings – non-blocking (${e.warning_items.length})</summary>${e.reports.flatMap(r=>r.results.filter(x=>x.status==='WARNING').map(x=>issue(x,names.length>1?r.part_name:''))).join('')}</details>`:''}
  ${e.unresolved_items.length?`<details><summary>Unresolved checks (${e.unresolved_items.length})</summary>${e.reports.flatMap(r=>r.results.filter(x=>x.status==='NEEDS_REVIEW').map(x=>issue(x,names.length>1?r.part_name:''))).join('')}</details>`:''}
- ${e.research_status==='blocked'?`<div class="meta">Data status: ${esc(e.research_notes)}</div>`:''}</div>`});
+ ${e.provisional?`<div class="meta">Based on provisional (second-hand, unconfirmed) data – cannot give a full 'compatible' verdict.</div>`:''}
+ ${(e.restrictions||[]).length?`<details><summary>Published requirements not evaluated (${e.restrictions.length})</summary>${e.restrictions.map(r=>`<div class="meta">• ${esc(r.text)}</div>`).join('')}</details>`:''}
+ ${(e.research_status==='blocked'||e.research_status==='partial')?`<div class="meta">Data status (${esc(e.research_status)}): ${esc(e.research_notes)}</div>`:''}</div>`});
  d.parts.forEach(p=>{h+=geometry(p)});$('out').innerHTML=h;$('export').classList.remove('hidden')}
 document.addEventListener('click',e=>{const a=e.target.closest('a[data-url]');if(a){e.preventDefault();send('open_url',{url:a.dataset.url});return}
  const o=e.target.closest('a[data-file]');if(o){e.preventDefault();send('open_file',{path:o.dataset.file});return}
@@ -111,10 +113,10 @@ window.fusionJavaScriptHandler={handle(action,data){const d=JSON.parse(data);
  if(action==='profiles'){PROFILES=d.profiles;$('cmpMat').innerHTML='<option value="">Auto-detect from Fusion material</option>'+(d.material_names||[]).map(n=>`<option>${esc(n)}</option>`).join('');fill($('mfr'),PROFILES);onMfr();$('run').disabled=!PROFILES.length;$('runC').disabled=!PROFILES.length;
   $('mfrList').innerHTML=PROFILES.map(p=>`<label class="chk"><input type="checkbox" value="${esc(p.id)}" ${p.status==='demo'?'':'checked'}> ${esc(p.name)} <span class="meta">(${esc(p.status)})</span></label>`).join('');
   if(d.errors.length)$('out').innerHTML=d.errors.map(e=>`<div class="err">${esc(e)}</div>`).join('')}
- else if(action==='results'){$('run').disabled=false;render(d)}
- else if(action==='compare_results'){$('runC').disabled=false;renderCompare(d)}
- else if(action==='exported'){$('exported').classList.remove('hidden');$('exported').innerHTML=`Saved: <a href="#" data-file="${esc(d.paths.html)}">${esc(d.paths.html)}</a><br>${esc(d.paths.issues_csv)}<br>${esc(d.paths.comparison_csv)}`}
- else if(action==='error'){$('run').disabled=false;$('runC').disabled=false;$('out').innerHTML=`<div class="err">${esc(d.message)}</div>`}
+ else if(action==='results'){$('run').disabled=false;$('export').disabled=false;$('exported').classList.add('hidden');render(d)}
+ else if(action==='compare_results'){$('runC').disabled=false;$('export').disabled=false;$('exported').classList.add('hidden');renderCompare(d)}
+ else if(action==='exported'){$('export').disabled=false;$('exported').classList.remove('hidden');$('exported').innerHTML=`${d.already?'Already exported for this analysis. ':''}Saved: <a href="#" data-file="${esc(d.paths.html)}">${esc(d.paths.html)}</a><br>${esc(d.paths.issues_csv)}<br>${esc(d.paths.comparison_csv)}`}
+ else if(action==='error'){$('export').disabled=false;$('run').disabled=false;$('runC').disabled=false;$('out').innerHTML=`<div class="err">${esc(d.message)}</div>`}
  return 'OK'}};
 (function ready(n){if(typeof adsk!=='undefined'&&adsk.fusionSendData){send('ready')}else if(n<50){setTimeout(()=>ready(n+1),100)}
  else{$('out').innerHTML='<div class="err">Fusion bridge (adsk.fusionSendData) not available in this page.</div>'}})(0);

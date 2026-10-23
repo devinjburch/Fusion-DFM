@@ -20,6 +20,8 @@ HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "inde
 
 _log = get_logger()
 _handlers = []          # event handlers must stay referenced or Fusion drops them
+_guard = bridge.ExportGuard()
+_stamp = 0              # incremented by every analysis; an export is tied to one stamp
 _last = {}              # last analysis: {"parts": [...], "warnings": [...], "request": {...}} for report export
 _app = None
 _ui = None
@@ -75,11 +77,17 @@ class _HtmlHandler(adsk.core.HTMLEventHandler):
             _send("error", {"message": str(e)})
             return
         payload = bridge.results_payload(part, warnings, req)
+        _bump()
         _last.update(parts=[part], warnings=warnings, request={"manufacturers": [{"id": req.get("manufacturer_id"),
                      "process_id": req.get("process_id"), "material_id": req.get("material_id")}]})
         _log.info("analysis %s/%s -> %s %s", req.get("manufacturer_id"), req.get("process_id"),
                   payload["overall"], payload["counts"])
         _send("results", payload)
+
+
+def _bump():
+    global _stamp
+    _stamp += 1
 
 
 def _model_name():
@@ -100,6 +108,7 @@ def _compare(self, req):
         _send("error", {"message": str(e)})
         return
     payload = bridge.compare_payload(parts, warnings, req)
+    _bump()
     _last.update(parts=parts, warnings=warnings, request=req)
     _log.info("comparison of %d part(s): %s", len(parts),
               [(e["manufacturer_id"], e["verdict"]) for e in payload["comparison"]["entries"]])
@@ -110,8 +119,14 @@ def _export(self):
     if not _last:
         _send("error", {"message": "Run an analysis before exporting a report."})
         return
+    again = _guard.lookup(_stamp)
+    if again:
+        _log.info("export skipped: this analysis was already exported: %s", again)
+        _send("exported", {"paths": again, "already": True})
+        return
     name, doc = _model_name()
     res = bridge.export_payload(_last["parts"], _last["warnings"], _last["request"], name, doc)
+    _guard.record(_stamp, res["paths"])
     _log.info("report written: %s", res["paths"])
     _send("exported", res)
 

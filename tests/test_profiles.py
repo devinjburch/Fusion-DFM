@@ -16,10 +16,16 @@ def test_demo_profile_clearly_labelled():
 
 
 def test_unverified_profiles_have_no_enabled_rules():
+    p = load_profile(os.path.join(os.path.dirname(__file__), "fixtures", "phase1_pcbway_unverified.json"))
+    assert p["profile_status"] == "unverified"
+    assert not any(r["enabled"] for pr in p["processes"] for r in pr["rules"])
+
+
+def test_pcbway_xometry_data_is_provisional_and_non_blocking():
     for mid in ("pcbway", "xometry"):
         p = load_profile(os.path.join(DEFAULT_DIR, f"{mid}.json"))
-        assert p["profile_status"] == "unverified"
-        assert not any(r["enabled"] for pr in p["processes"] for r in pr["rules"])
+        enabled = [r for pr in p["processes"] for r in pr["rules"] if r["enabled"]]
+        assert enabled and all(r["provisional"] and r["consequence"] in ("warning", "review") for r in enabled)
 
 
 def test_enabled_real_rules_have_source_and_date():

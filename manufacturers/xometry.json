@@ -5,85 +5,364 @@
   "name": "Xometry",
   "website": "https://www.xometry.com"
  },
- "profile_status": "unverified",
- "description": "No Xometry requirements are entered. Official documentation could not be retrieved from the build environment, so every rule is disabled and no PASS/FAIL can be produced from this profile.",
+ "profile_status": "partially_verified",
+ "description": "Published Xometry sheet-metal capabilities and design tips from an owner-supplied research snapshot (2026-10-23). Second-hand and provisional: every rule is non-blocking and can never produce a 'compatible' verdict.",
  "research": {
-  "status": "blocked",
-  "attempted": "2026-10-20",
-  "notes": "Requests to https://www.xometry.com failed (proxy 403 via curl; DNS resolution failure via the web-fetch tool). Not retried. To complete this profile: supply the official sheet-metal design guide / capabilities pages (saved HTML or PDF) and enter values with source.url and source.date_verified."
+  "status": "partial",
+  "attempted": "2026-10-23",
+  "notes": "Data supplied by the project owner from an external research session; this project's build environment could not reach xometry.com. Full downloadable design guides were not extracted. Ambiguous datums (hole-to-hole, bend-edge-to-hole, countersink, relief) are left disabled. Supplier/process-specific capability needs quote confirmation. Electrical suitability and certification are not assessed."
  },
  "processes": [
   {
-   "id": "sheet_metal_fabrication",
-   "name": "Sheet metal fabrication",
+   "id": "sheet_metal_bending",
+   "name": "Sheet metal fabrication (published capabilities)",
    "thickness_match_tolerance_mm": 0.05,
    "materials": [],
-   "tolerances": [],
-   "restrictions": [],
-   "notes": [],
+   "restrictions": [
+    {
+     "id": "xom.r.sm-003",
+     "text": "Hole-to-hole spacing 6x thickness: the publisher does not say center-to-center or edge-to-edge and notes it should not be automated until resolved; hole-to-hole spacing is also not extracted.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/capabilities/sheet-metal-fabrication/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-SM-003"
+      ],
+      "note": "Publisher does not clarify whether center-to-center or edge-to-edge; do not automate until resolved."
+     }
+    },
+    {
+     "id": "xom.r.sm-005",
+     "text": "Feature-to-countersink 8x thickness: feature datum ambiguous; countersinks are not extracted.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/capabilities/sheet-metal-fabrication/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-SM-005"
+      ],
+      "note": "Feature datum ambiguous; manual verification needed."
+     }
+    },
+    {
+     "id": "xom.r.sm-006",
+     "text": "Minimum countersink depth 0.6x thickness (check suitability for thickness and screw design); countersinks are not extracted.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/capabilities/sheet-metal-fabrication/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-SM-006"
+      ],
+      "note": "Check suitability for thickness and screw design."
+     }
+    },
+    {
+     "id": "xom.r.sm-007",
+     "text": "Relief cuts 1x thickness: relief width vs depth unclear; reliefs are not extracted.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/capabilities/sheet-metal-fabrication/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-SM-007"
+      ],
+      "note": "Clarify relief width versus depth before automatic checking."
+     }
+    },
+    {
+     "id": "xom.r.sm-008",
+     "text": "Corner fillet radius 0.5x thickness: fillet geometry unclear; not extracted.",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/capabilities/sheet-metal-fabrication/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-SM-008"
+      ],
+      "note": "Clarify corner fillet geometry before automatic checking."
+     }
+    }
+   ],
+   "notes": [
+    "Rules are expressed as multiples of material thickness, so they apply to any material."
+   ],
+   "tolerances": [
+    {
+     "id": "xom.tol.quoted",
+     "text": "Automatic quoting tolerance as tight as +/-0.005 in for some dimensions; tighter requires manual review",
+     "value": 0.127,
+     "units": "mm",
+     "source": {
+      "url": "https://www.xometry.com/capabilities/sheet-metal-fabrication/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-CAP-005"
+      ],
+      "note": "As tight as \u00b1.005 inch for some dimensions; tighter requires manual review"
+     }
+    }
+   ],
    "rules": [
     {
-     "id": "xometry.min_bend_radius",
+     "id": "xom.thickness_typical",
+     "type": "thickness_range",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "review",
+     "parameters": {
+      "min_mm": 0.6096,
+      "max_mm": 6.35
+     },
+     "notes": "Typical range only; thinner/thicker sheet is available by review, so an out-of-range value needs confirmation, not rejection.",
+     "source": {
+      "url": "https://www.xometry.com/capabilities/sheet-metal-fabrication/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-CAP-001",
+       "XOM-CAP-002"
+      ],
+      "note": "Typical; thinner available by review; Typical; thicker available by review"
+     }
+    },
+    {
+     "id": "xom.max_blank",
+     "type": "max_part_dimensions",
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "review",
+     "parameters": {
+      "max_long_mm": 3048.0,
+      "max_short_mm": 1524.0
+     },
+     "notes": "Nominal 5 x 10 ft blank; larger on request. Compared with the flat-pattern bounding box.",
+     "source": {
+      "url": "https://www.xometry.com/capabilities/sheet-metal-fabrication/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-CAP-003",
+       "XOM-CAP-004"
+      ],
+      "note": "Nominal 5 x 10 ft blank, larger upon request; Nominal 5 x 10 ft blank, larger upon request"
+     }
+    },
+    {
+     "id": "xom.min_bend_radius",
      "type": "min_bend_radius",
-     "enabled": false,
-     "verified": false,
-     "severity": "ERROR",
-     "parameters": {},
-     "limitations": "Unverified: Xometry documentation for 'Minimum bend radius' could not be retrieved."
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "warning",
+     "parameters": {
+      "min_ratio_to_thickness": 1
+     },
+     "notes": "Published as minimum bend 1x material thickness; treated as an inside-radius recommendation. Material and tooling may require more.",
+     "source": {
+      "url": "https://www.xometry.com/capabilities/sheet-metal-fabrication/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-SM-001"
+      ],
+      "note": "Interpret minimum bend 1X MT as radius recommendation; confirm specific material and tooling."
+     }
     },
     {
-     "id": "xometry.min_flange_length",
-     "type": "min_flange_length",
-     "enabled": false,
-     "verified": false,
-     "severity": "ERROR",
-     "parameters": {},
-     "limitations": "Unverified: Xometry documentation for 'Minimum flange length' could not be retrieved."
-    },
-    {
-     "id": "xometry.min_hole_diameter",
-     "type": "min_hole_diameter",
-     "enabled": false,
-     "verified": false,
-     "severity": "ERROR",
-     "parameters": {},
-     "limitations": "Unverified: Xometry documentation for 'Minimum hole/cutout size' could not be retrieved."
-    },
-    {
-     "id": "xometry.min_hole_edge_distance",
+     "id": "xom.hole_edge",
      "type": "min_hole_edge_distance",
-     "enabled": false,
-     "verified": false,
-     "severity": "ERROR",
-     "parameters": {},
-     "limitations": "Unverified: Xometry documentation for 'Minimum hole-to-edge distance' could not be retrieved."
+     "enabled": true,
+     "verified": true,
+     "provisional": true,
+     "severity": "WARNING",
+     "consequence": "warning",
+     "parameters": {
+      "min_ratio_to_thickness": 2
+     },
+     "notes": "Published as hole-edge to part-edge, edge-to-edge (matches how the add-in measures).",
+     "source": {
+      "url": "https://www.xometry.com/capabilities/sheet-metal-fabrication/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-SM-002"
+      ],
+      "note": "Measurement edge-to-edge; see published feature names."
+     }
     },
     {
-     "id": "xometry.min_hole_bend_distance",
+     "id": "xom.bend_to_hole",
      "type": "min_hole_bend_distance",
      "enabled": false,
      "verified": false,
-     "severity": "ERROR",
+     "severity": "WARNING",
      "parameters": {},
-     "limitations": "Unverified: Xometry documentation for 'Minimum hole-to-bend distance' could not be retrieved."
+     "limitations": "6x thickness published; the bend-edge datum is ambiguous (tangent line vs bend line), so it is not automated.",
+     "source": {
+      "url": "https://www.xometry.com/capabilities/sheet-metal-fabrication/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-SM-004"
+      ],
+      "note": "Bend edge datum ambiguous; manual verification needed."
+     }
+    }
+   ]
+  },
+  {
+   "id": "cnc_machining",
+   "name": "CNC machining (design tips; not evaluated)",
+   "materials": [],
+   "rules": [],
+   "tolerances": [],
+   "notes": [
+    "CNC tips are recorded as restrictions only; machining is outside the current sheet-metal scope."
+   ],
+   "restrictions": [
+    {
+     "id": "xom.cnc.001",
+     "text": "Minimum metal wall 0.794 mm (design recommendation)",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/resources/machining/10-tips-improve-cad-cnc-design/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-CNC-001"
+      ],
+      "note": "Design recommendation"
+     }
     },
     {
-     "id": "xometry.max_part_dimensions",
-     "type": "max_part_dimensions",
-     "enabled": false,
-     "verified": false,
-     "severity": "ERROR",
-     "parameters": {},
-     "limitations": "Unverified: Xometry documentation for 'Maximum flat part size' could not be retrieved."
+     "id": "xom.cnc.002",
+     "text": "Minimum plastic wall 1.5 mm",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/resources/machining/10-tips-improve-cad-cnc-design/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-CNC-002"
+      ],
+      "note": "Design recommendation"
+     }
     },
     {
-     "id": "xometry.thickness_range",
-     "type": "thickness_range",
-     "enabled": false,
-     "verified": false,
-     "severity": "ERROR",
-     "parameters": {},
-     "limitations": "Unverified: Xometry documentation for 'Supported material thickness' could not be retrieved."
+     "id": "xom.cnc.003",
+     "text": "Cavity depth:width ratio <= 5 (3-5 recommended)",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/resources/machining/10-tips-improve-cad-cnc-design/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-CNC-003"
+      ],
+      "note": "3\u20135 recommended; deeper may need review"
+     }
+    },
+    {
+     "id": "xom.cnc.004",
+     "text": "Internal corner radius >= 1.3x tool radius (rule of thumb)",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/resources/machining/10-tips-improve-cad-cnc-design/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-CNC-004"
+      ],
+      "note": "Rule of thumb, not guaranteed machining limit"
+     }
+    },
+    {
+     "id": "xom.cnc.005",
+     "text": "Thread depth <= 2x diameter (typically 1.5-2x; cost guidance)",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/resources/machining/10-tips-improve-cad-cnc-design/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-CNC-005"
+      ],
+      "note": "Cost guidance; typically 1.5\u20132x diameter"
+     }
+    },
+    {
+     "id": "xom.cnc.006",
+     "text": "Blind hole: unthreaded bottom >= 0.5x diameter",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/resources/machining/10-tips-improve-cad-cnc-design/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-CNC-006"
+      ],
+      "note": "Additional length recommendation"
+     }
+    },
+    {
+     "id": "xom.cnc.007",
+     "text": "Feature size >= 2.5 mm (common tool size; smaller with special tools)",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/resources/machining/10-tips-improve-cad-cnc-design/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-CNC-007"
+      ],
+      "note": "Common tool size; smaller possible with special tools"
+     }
+    },
+    {
+     "id": "xom.cnc.008",
+     "text": "Drilled hole depth <= 4x diameter (up to 10x possible but costly)",
+     "modelled": false,
+     "source": {
+      "url": "https://www.xometry.com/resources/machining/10-tips-improve-cad-cnc-design/",
+      "date_verified": "2026-10-23",
+      "snapshot": true,
+      "provenance": "Owner-supplied research snapshot 2026-10-23 (xometry_buildability_rules_v1.json); compiled by an external research session from the cited public page, not re-fetched by this project. Treat as provisional until re-checked against the page.",
+      "source_rule_ids": [
+       "XOM-CNC-008"
+      ],
+      "note": "Up to 10x possible but costly"
+     }
     }
    ]
   }

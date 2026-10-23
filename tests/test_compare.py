@@ -7,6 +7,8 @@ from dfm_engine.profile import DEFAULT_DIR
 IN = 25.4
 PROFILES, _ = list_profiles()
 FULL = load_profile(os.path.join(os.path.dirname(__file__), "fixtures", "full_coverage.json"))
+STUB = load_profile(os.path.join(os.path.dirname(__file__), "fixtures", "phase1_pcbway_unverified.json"))   # no data at all
+_RANK = {COMPATIBLE: 0, CONDITIONAL: 1, NEEDS_REVIEW: 2, INCOMPATIBLE: 3}
 
 
 def mild(**kw):
@@ -23,11 +25,22 @@ def entry(c, mid):
 
 
 def test_unverified_manufacturers_never_get_a_compatible_verdict():
-    c = compare(mild(), PROFILES)
+    e = entry(compare(mild(), [STUB]), "pcbway")
+    assert e.verdict == NEEDS_REVIEW and e.passed == 0 and e.failures == 0
+    assert "No verified check" in e.summary
+
+
+def test_provisional_data_can_never_give_compatible_or_incompatible():
+    for mat in ("Steel", "Mild Steel", "Aluminum 6061"):                         # generic Fusion names now match PCBWay families
+        c = compare(mild(material_name=mat), PROFILES)
+        for mid in ("pcbway", "xometry"):
+            e = entry(c, mid)
+            assert e.verdict in (CONDITIONAL, NEEDS_REVIEW) and e.failures == 0, (mat, mid, e.verdict)
+            assert e.provisional and e.coverage_gaps                               # nothing is covered by provisional rules
+    # even a hopeless part cannot be INCOMPATIBLE with a provisional manufacturer
+    bad = mild(thickness_mm=40, flat_dimensions_mm=(9000, 9000), flanges=[Flange(length_mm=0.1, length_apex_mm=0.1, bend_angle_deg=90)])
     for mid in ("pcbway", "xometry"):
-        e = entry(c, mid)
-        assert e.verdict == NEEDS_REVIEW and e.passed == 0 and e.failures == 0
-        assert "No verified check" in e.summary
+        assert entry(compare(bad, PROFILES), mid).verdict != INCOMPATIBLE
 
 
 def test_sendcutsend_conditional_when_coverage_gap_remains():
@@ -53,7 +66,8 @@ def test_fully_covered_profile_can_be_compatible_and_ranking_orders_verdicts():
     c = compare(mild(), PROFILES + [FULL])
     assert entry(c, "full").verdict == COMPATIBLE
     ranked = [e.manufacturer_id for e in c.ranked()]
-    assert ranked.index("full") < ranked.index("sendcutsend") < ranked.index("pcbway")
+    assert ranked[0] == "full"
+    assert [_RANK[e.verdict] for e in c.ranked()] == sorted(_RANK[e.verdict] for e in c.ranked())   # best verdict first
     assert "demo" not in ranked                      # demo excluded from ranking by default
     assert "demo" in [e.manufacturer_id for e in c.ranked(include_demo=True)]
 
